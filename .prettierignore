@@ -1,0 +1,7 @@
+node_modules
+package-lock.json
+.expo
+dist
+src/tipos/contrato.ts
+.mcp.json
+.idea
