@@ -1,51 +1,88 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { espacio, radio } from "../constantes/tema";
-import { useColores } from "../hooks/useColores";
-import { usePeticion } from "../hooks/usePeticion";
-import { traerPing } from "../servicios/ping";
+import { router } from "expo-router";
+import { useState } from "react";
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Boton from "../componentes/Boton";
+import CampoTexto from "../componentes/CampoTexto";
+import { colores } from "../constantes/tema";
 
-// Pantalla provisional: el catálogo llega con F02. Mientras, muestra si la API
-// responde, para comprobar que el móvil y el backend están conectados.
-export default function Inicio() {
-  const c = useColores();
-  const { datos, cargando, error } = usePeticion(traerPing);
+// Pantalla de inicio de sesión (demo: todavía no hay cuentas, el botón
+// solo lleva al dashboard).
+export default function Login() {
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+
+  // no se puede entrar con campos vacíos; un correo solo de espacios cuenta como vacío
+  const camposLlenos = correo.trim() !== "" && password !== "";
+
+  function entrar() {
+    // replace en lugar de push para que "atrás" no regrese al login
+    router.replace("/inicio");
+  }
 
   return (
-    <View style={styles.contenedor}>
-      <Text style={[styles.titulo, { color: c.primario }]}>Brote</Text>
-      <Text style={{ color: c.textoSuave }}>Cursos interactivos creados por la comunidad.</Text>
+    <SafeAreaView style={styles.pantalla}>
+      {/* sube el formulario cuando aparece el teclado en iOS */}
+      <KeyboardAvoidingView
+        style={styles.contenido}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <View style={styles.encabezado}>
+          <Text style={styles.logo}>🌱</Text>
+          <Text style={styles.titulo}>Brote</Text>
+          <Text style={styles.subtitulo}>Aprende lo que la comunidad enseña</Text>
+        </View>
 
-      {cargando && <ActivityIndicator color={c.primario} />}
-      {error !== null && (
-        <Text style={[styles.estado, { color: c.error, backgroundColor: c.errorFondo }]}>
-          No se pudo conectar con la API. Revisa EXPO_PUBLIC_URL_API en .env.
-        </Text>
-      )}
-      {datos && (
-        <Text style={[styles.estado, { color: c.exito, backgroundColor: c.exitoFondo }]}>
-          API conectada.
-        </Text>
-      )}
-    </View>
+        <View style={styles.formulario}>
+          <CampoTexto
+            etiqueta="Correo"
+            valor={correo}
+            alCambiar={setCorreo}
+            placeholder="tu@correo.com"
+          />
+          <CampoTexto
+            etiqueta="Contraseña"
+            valor={password}
+            alCambiar={setPassword}
+            placeholder="********"
+            esPassword
+          />
+          <Boton titulo="Iniciar sesión" alPresionar={entrar} deshabilitado={!camposLlenos} />
+          <Boton titulo="Crear cuenta" alPresionar={entrar} variante="secundario" />
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  contenedor: {
+  pantalla: {
     flex: 1,
-    alignItems: "center",
+    backgroundColor: colores.claro.fondo,
+  },
+  contenido: {
+    flex: 1,
     justifyContent: "center",
-    gap: espacio.tres,
-    padding: espacio.cuatro,
+    padding: 24,
+    gap: 40,
+  },
+  encabezado: {
+    alignItems: "center",
+    gap: 4,
+  },
+  logo: {
+    fontSize: 56,
   },
   titulo: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: "700",
+    color: colores.claro.primario,
   },
-  estado: {
-    paddingVertical: espacio.dos,
-    paddingHorizontal: espacio.tres,
-    borderRadius: radio,
-    overflow: "hidden",
+  subtitulo: {
+    fontSize: 15,
+    color: colores.claro.textoSuave,
+  },
+  formulario: {
+    gap: 16,
   },
 });

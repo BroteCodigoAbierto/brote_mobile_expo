@@ -1,24 +1,19 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useColores } from "../hooks/useColores";
+import { colores } from "../constantes/tema";
 
-// Navegación raíz. Las pantallas se agregan con cada feature y deben
-// coincidir con brote_specs/specs/01-navegacion.md.
+// Navegación raíz: una pila de pantallas. Cada pantalla dibuja su propio
+// encabezado, por eso se oculta el de la pila.
 export default function LayoutRaiz() {
-  const c = useColores();
-
   return (
     <>
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: c.superficie },
-          headerTintColor: c.texto,
-          contentStyle: { backgroundColor: c.fondo },
+          headerShown: false,
+          contentStyle: { backgroundColor: colores.claro.fondo },
         }}
-      >
-        <Stack.Screen name="index" options={{ title: "Brote" }} />
-      </Stack>
-      <StatusBar style="auto" />
+      />
+      <StatusBar style="dark" />
     </>
   );
 }
