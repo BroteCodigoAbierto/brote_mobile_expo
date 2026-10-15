@@ -2,13 +2,13 @@ import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { espacio, radio } from "../constantes/tema";
 import { useColores } from "../hooks/useColores";
 import { usePeticion } from "../hooks/usePeticion";
-import { traerSalud } from "../servicios/salud";
+import { traerPing } from "../servicios/ping";
 
 // Pantalla provisional: el catálogo llega con F02. Mientras, muestra si la API
 // responde, para comprobar que el móvil y el backend están conectados.
 export default function Inicio() {
   const c = useColores();
-  const { datos, cargando, error } = usePeticion(traerSalud);
+  const { datos, cargando, error } = usePeticion(traerPing);
 
   return (
     <View style={styles.contenedor}>
