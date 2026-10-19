@@ -13,7 +13,5 @@ export type Curso = {
   titulo: string;
   descripcion: string;
   autor: string;
-  icono: string; // un emoji o un caracter, para no depender de imágenes
-  color: string; // color de fondo del icono
   lecciones: Leccion[];
 };

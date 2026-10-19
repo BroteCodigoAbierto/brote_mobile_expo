@@ -17,9 +17,8 @@ export default function TarjetaCurso({ curso, alPresionar }: Props) {
       onPress={alPresionar}
       style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
     >
-      <View style={[styles.icono, { backgroundColor: curso.color }]}>
-        <Text style={styles.textoIcono}>{curso.icono}</Text>
-      </View>
+      {/* espacio para la imagen del curso, mientras no hay imágenes */}
+      <View style={styles.imagen} />
 
       <View style={styles.info}>
         <Text style={styles.titulo}>{curso.titulo}</Text>
@@ -44,17 +43,11 @@ const styles = StyleSheet.create({
   presionada: {
     opacity: 0.7,
   },
-  icono: {
+  imagen: {
     width: 52,
     height: 52,
     borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  textoIcono: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colores.claro.texto,
+    backgroundColor: colores.claro.borde,
   },
   info: {
     flex: 1, // ocupa el resto del ancho para que la barra se estire

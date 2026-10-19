@@ -42,9 +42,8 @@ export default function DetalleCurso() {
               <Text style={styles.volver}>‹ Cursos</Text>
             </Pressable>
 
-            <View style={[styles.icono, { backgroundColor: curso.color }]}>
-              <Text style={styles.textoIcono}>{curso.icono}</Text>
-            </View>
+            {/* espacio para la imagen del curso, mientras no hay imágenes */}
+            <View style={styles.imagen} />
 
             <Text style={styles.titulo}>{curso.titulo}</Text>
             <Text style={styles.autor}>por {curso.autor}</Text>
@@ -95,17 +94,11 @@ const styles = StyleSheet.create({
     color: colores.claro.primario,
     marginBottom: 8,
   },
-  icono: {
+  imagen: {
     width: 72,
     height: 72,
     borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  textoIcono: {
-    fontSize: 34,
-    fontWeight: "700",
-    color: colores.claro.texto,
+    backgroundColor: colores.claro.borde,
   },
   titulo: {
     fontSize: 26,

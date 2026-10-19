@@ -1,7 +1,6 @@
 import { Curso } from "../tipos/tipos";
 
-// Datos de ejemplo escritos a mano (salen de los cursos del prototipo).
-// Más adelante vendrán de la API; por ahora sirven para ver las pantallas.
+// Datos de ejemplo escritos a mano
 
 export const usuarioDemo = {
   nombre: "Pedro",
@@ -15,8 +14,6 @@ export const cursos: Curso[] = [
     descripcion:
       "Aprende Git desde cero: commits, ramas y remotos, con una terminal simulada y grafos de commits interactivos.",
     autor: "pedro",
-    icono: "🌿",
-    color: "#e6f4ea",
     lecciones: [
       { id: "01", titulo: "¿Qué es el control de versiones?", completada: true },
       { id: "02", titulo: "Tu primer commit", completada: true },
@@ -31,8 +28,6 @@ export const cursos: Curso[] = [
     titulo: "Japonés sencillo",
     descripcion: "Hiragana, saludos y números para dar tus primeros pasos en japonés.",
     autor: "pedro",
-    icono: "あ",
-    color: "#fdecef",
     lecciones: [
       { id: "01", titulo: "Hiragana: las vocales", completada: true },
       { id: "02", titulo: "Saludos", completada: false },
@@ -45,8 +40,6 @@ export const cursos: Curso[] = [
     titulo: "Programación en C sencilla",
     descripcion: "Variables, condicionales, funciones, arreglos y punteros.",
     autor: "pedro",
-    icono: "C",
-    color: "#e8eefc",
     lecciones: [
       { id: "01", titulo: "Primeros pasos", completada: false },
       { id: "02", titulo: "Condicionales y operadores", completada: false },
@@ -59,8 +52,6 @@ export const cursos: Curso[] = [
     titulo: "HTML y Flexbox",
     descripcion: "Formularios, semántica, box model y todo lo necesario para dominar Flexbox.",
     autor: "pedro",
-    icono: "🎨",
-    color: "#fff4e0",
     lecciones: [
       { id: "01", titulo: "Formularios: label e input", completada: false },
       { id: "02", titulo: "Box model: padding, gap y margin", completada: false },

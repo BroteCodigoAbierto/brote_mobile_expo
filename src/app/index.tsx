@@ -1,36 +1,32 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Boton from "../componentes/Boton";
 import CampoTexto from "../componentes/CampoTexto";
 import { colores } from "../constantes/tema";
 
-// Pantalla de inicio de sesión (demo: todavía no hay cuentas, el botón
-// solo lleva al dashboard).
+// Pantalla de login
 export default function Login() {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
 
-  // no se puede entrar con campos vacíos; un correo solo de espacios cuenta como vacío
+  // no campos vacios
   const camposLlenos = correo.trim() !== "" && password !== "";
 
   function entrar() {
-    // replace en lugar de push para que "atrás" no regrese al login
+    // replace en lugar de push para que no regrese al login
     router.replace("/inicio");
   }
 
   return (
     <SafeAreaView style={styles.pantalla}>
-      {/* sube el formulario cuando aparece el teclado en iOS */}
-      <KeyboardAvoidingView
-        style={styles.contenido}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
+      <View style={styles.contenido}>
         <View style={styles.encabezado}>
-          <Text style={styles.logo}>🌱</Text>
+          {/* espacio para el logo, mientras no hay imagen */}
+          <View style={styles.logo} />
           <Text style={styles.titulo}>Brote</Text>
-          <Text style={styles.subtitulo}>Aprende lo que la comunidad enseña</Text>
+          <Text style={styles.subtitulo}>Aprende</Text>
         </View>
 
         <View style={styles.formulario}>
@@ -50,7 +46,7 @@ export default function Login() {
           <Boton titulo="Iniciar sesión" alPresionar={entrar} deshabilitado={!camposLlenos} />
           <Boton titulo="Crear cuenta" alPresionar={entrar} variante="secundario" />
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -71,7 +67,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   logo: {
-    fontSize: 56,
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: colores.claro.borde,
+    marginBottom: 8,
   },
   titulo: {
     fontSize: 36,

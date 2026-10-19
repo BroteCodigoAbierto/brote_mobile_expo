@@ -23,7 +23,7 @@ export default function Boton({
       style={({ pressed }) => [
         styles.boton,
         esPrimario ? styles.primario : styles.secundario,
-        pressed && styles.presionado, // se nota que lo tocaste
+        pressed && styles.presionado,
         deshabilitado && styles.deshabilitado,
       ]}
     >

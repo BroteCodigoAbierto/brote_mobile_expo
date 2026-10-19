@@ -21,8 +21,7 @@ export default function Inicio() {
 
   return (
     <SafeAreaView style={styles.pantalla} edges={["top"]}>
-      {/* FlatList para la lista de cursos; lo de arriba va en el encabezado
-          de la lista para que todo haga scroll junto */}
+      {/* FlatList para que todo haga scroll junto */}
       <FlatList
         data={cursos}
         keyExtractor={(curso) => curso.id}
@@ -31,8 +30,8 @@ export default function Inicio() {
           <View style={styles.encabezado}>
             <View style={styles.filaSaludo}>
               <View>
-                <Text style={styles.saludo}>Hola, {usuarioDemo.nombre} 👋</Text>
-                <Text style={styles.subtitulo}>¿Qué vas a aprender hoy?</Text>
+                <Text style={styles.saludo}>Hola, {usuarioDemo.nombre} </Text>
+                <Text style={styles.subtitulo}>Bienvenido a brote</Text>
               </View>
               <Pressable onPress={salir}>
                 <Text style={styles.salir}>Salir</Text>

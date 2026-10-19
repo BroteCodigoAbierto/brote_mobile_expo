@@ -5,8 +5,10 @@ type Props = {
   progreso: number; // de 0 a 1
 };
 
-// Barra hecha con dos View: el fondo gris y encima la parte llena,
+// Barra hecha con dos View
+// el fondo gris y encima la parte llena
 // con un ancho en porcentaje.
+
 export default function BarraProgreso({ progreso }: Props) {
   return (
     <View style={styles.fondo}>
