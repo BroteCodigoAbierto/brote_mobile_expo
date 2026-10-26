@@ -1,17 +1,17 @@
-import { Stack } from "expo-router";
+import { SplashScreen } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { colores } from "../constantes/tema";
+import NavegacionRaiz from "../componentes/NavegacionRaiz";
+import SesionProvider from "../contextos/SesionProvider";
+
+// La pantalla de arranque se queda hasta saber si hay sesión, para que "Entrar"
+// no aparezca ni un instante (spec F01). La oculta NavegacionRaiz.
+SplashScreen.preventAutoHideAsync();
 
 export default function LayoutRaiz() {
   return (
-    <>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colores.claro.fondo },
-        }}
-      />
-      <StatusBar style="dark" />
-    </>
+    <SesionProvider>
+      <NavegacionRaiz />
+      <StatusBar style="auto" />
+    </SesionProvider>
   );
 }
