@@ -14,7 +14,7 @@ Antes de cambiar algo, lee:
 
 ## Stack
 
-Expo SDK 57 · React Native · TypeScript · expo-router (rutas en `src/app/`).
+Expo SDK 58 · React Native 0.88 · TypeScript · expo-router (rutas en `src/app/`).
 Las reglas de Expo de `AGENTS.md` aplican: instala paquetes con
 `npx expo install` y consulta la documentación de la versión del SDK.
 

@@ -11,7 +11,7 @@ de [brote_backend_express](https://github.com/BroteCodigoAbierto/brote_backend_e
 
 ## Stack
 
-Expo SDK 57 · React Native · TypeScript · expo-router
+Expo SDK 58 · React Native 0.88 · TypeScript · expo-router
 
 ## Arrancar en local
 
