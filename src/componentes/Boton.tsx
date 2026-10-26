@@ -1,11 +1,14 @@
-import { Pressable, StyleSheet, Text } from "react-native";
-import { colores, radio } from "../constantes/tema";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { radio } from "../constantes/tema";
+import { useColores } from "../hooks/useColores";
 
 type Props = {
   titulo: string;
   alPresionar: () => void;
   variante?: "primario" | "secundario";
   deshabilitado?: boolean;
+  // mientras se envía queda deshabilitado, para que no se envíe dos veces
+  enviando?: boolean;
 };
 
 export default function Boton({
@@ -13,21 +16,32 @@ export default function Boton({
   alPresionar,
   variante = "primario",
   deshabilitado = false,
+  enviando = false,
 }: Props) {
+  const c = useColores();
   const esPrimario = variante === "primario";
+  const inactivo = deshabilitado || enviando;
+  const colorTexto = esPrimario ? c.sobrePrimario : c.primario;
 
   return (
     <Pressable
       onPress={alPresionar}
-      disabled={deshabilitado}
+      disabled={inactivo}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: inactivo, busy: enviando }}
       style={({ pressed }) => [
         styles.boton,
-        esPrimario ? styles.primario : styles.secundario,
+        esPrimario
+          ? { backgroundColor: c.primario }
+          : { backgroundColor: c.superficie, borderWidth: 1, borderColor: c.primario },
         pressed && styles.presionado,
-        deshabilitado && styles.deshabilitado,
+        inactivo && styles.deshabilitado,
       ]}
     >
-      <Text style={esPrimario ? styles.textoPrimario : styles.textoSecundario}>{titulo}</Text>
+      <View style={styles.contenido}>
+        {enviando && <ActivityIndicator size="small" color={colorTexto} />}
+        <Text style={[styles.texto, { color: colorTexto }]}>{titulo}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -39,27 +53,18 @@ const styles = StyleSheet.create({
     borderRadius: radio,
     alignItems: "center",
   },
-  primario: {
-    backgroundColor: colores.claro.primario,
-  },
-  secundario: {
-    backgroundColor: colores.claro.superficie,
-    borderWidth: 1,
-    borderColor: colores.claro.primario,
+  contenido: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   presionado: {
     opacity: 0.7,
   },
   deshabilitado: {
-    opacity: 0.4,
+    opacity: 0.5,
   },
-  textoPrimario: {
-    color: colores.claro.sobrePrimario,
-    fontWeight: "600",
-    fontSize: 16,
-  },
-  textoSecundario: {
-    color: colores.claro.primario,
+  texto: {
     fontWeight: "600",
     fontSize: 16,
   },
