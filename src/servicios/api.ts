@@ -6,6 +6,12 @@ import { guardarToken } from "./almacenSesion";
 // Único punto de salida a la red. Las funciones de cada recurso
 // (servicios/cursos.ts, ...) se construyen encima de pedir().
 
+// Lo que se muestra cuando una petición no llega (ErrorConexion) o el servidor
+// falla (5xx), en cualquier pantalla.
+export const MENSAJE_SIN_CONEXION = "Sin conexión. Revisa tu conexión e inténtalo de nuevo.";
+export const MENSAJE_SIN_SERVIDOR =
+  "No se pudo conectar con Brote. Inténtalo de nuevo en un momento.";
+
 export class ErrorHttp extends Error {
   estado: number;
   cuerpo: unknown;
