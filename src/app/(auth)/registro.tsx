@@ -1,18 +1,19 @@
 import { Link } from "expo-router";
-import { StyleSheet, Text } from "react-native";
+import { Mail, Sparkles, UserRound } from "lucide-react-native";
+import { StyleSheet } from "react-native";
+import Aviso from "../../componentes/Aviso";
 import Boton from "../../componentes/Boton";
 import CampoContrasena from "../../componentes/CampoContrasena";
 import CampoTexto from "../../componentes/CampoTexto";
 import FormularioCuenta from "../../componentes/FormularioCuenta";
-import MensajeFormulario from "../../componentes/MensajeFormulario";
-import { useColores } from "../../hooks/useColores";
+import Texto from "../../componentes/Texto";
+import { fuentes } from "../../constantes/tema";
 import { useFormulario } from "../../hooks/useFormulario";
 import { useSesion } from "../../hooks/useSesion";
 import { validarCrearCuenta } from "../../validacion/cuenta";
 
 // Al crear la cuenta la sesión queda iniciada y Stack.Protected lleva al inicio.
 export default function Registro() {
-  const c = useColores();
   const { crearCuenta } = useSesion();
   const { valores, errores, general, enviando, cambiar, manejarEnvio } = useFormulario({
     inicial: { nombre: "", correo: "", contrasena: "" },
@@ -23,19 +24,24 @@ export default function Registro() {
   return (
     <FormularioCuenta
       titulo="Crear cuenta"
-      mensaje={general && <MensajeFormulario texto={general} />}
+      subtitulo="Una sola cuenta para aprender y para crear tus propios cursos."
+      mensaje={general && <Aviso texto={general} />}
       // dismissTo: vuelve a "Entrar" sin apilar otra pantalla
       pie={
-        <Text style={[styles.pie, { color: c.textoSuave }]}>
+        <Texto variante="cuerpoChico" color="textoSuave">
           ¿Ya tienes cuenta?{" "}
-          <Link href="/entrar" dismissTo style={[styles.enlace, { color: c.primario }]}>
-            Entrar
+          <Link href="/entrar" dismissTo>
+            <Texto variante="cuerpoChico" color="primario" style={styles.enlace}>
+              Entrar
+            </Texto>
           </Link>
-        </Text>
+        </Texto>
       }
     >
       <CampoTexto
         etiqueta="Nombre para mostrar"
+        icono={UserRound}
+        ayuda="Así te verán como autor de tus cursos."
         autoComplete="name"
         textContentType="name"
         autoCapitalize="words"
@@ -45,6 +51,7 @@ export default function Registro() {
       />
       <CampoTexto
         etiqueta="Correo"
+        icono={Mail}
         tipo="correo"
         valor={valores.correo}
         alCambiar={(valor) => cambiar("correo", valor)}
@@ -58,16 +65,18 @@ export default function Registro() {
         error={errores.contrasena}
         alEnviar={manejarEnvio}
       />
-      <Boton titulo="Crear cuenta" alPresionar={manejarEnvio} enviando={enviando} />
+      <Boton
+        titulo="Crear cuenta"
+        icono={Sparkles}
+        alPresionar={manejarEnvio}
+        enviando={enviando}
+      />
     </FormularioCuenta>
   );
 }
 
 const styles = StyleSheet.create({
-  pie: {
-    fontSize: 15,
-  },
   enlace: {
-    fontWeight: "600",
+    fontFamily: fuentes.seminegrita,
   },
 });

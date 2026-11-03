@@ -1,11 +1,13 @@
 import { Link } from "expo-router";
-import { StyleSheet, Text } from "react-native";
+import { ArrowRight, Mail } from "lucide-react-native";
+import { StyleSheet } from "react-native";
+import Aviso from "../../componentes/Aviso";
 import Boton from "../../componentes/Boton";
 import CampoContrasena from "../../componentes/CampoContrasena";
 import CampoTexto from "../../componentes/CampoTexto";
 import FormularioCuenta from "../../componentes/FormularioCuenta";
-import MensajeFormulario from "../../componentes/MensajeFormulario";
-import { useColores } from "../../hooks/useColores";
+import Texto from "../../componentes/Texto";
+import { fuentes } from "../../constantes/tema";
 import { useFormulario } from "../../hooks/useFormulario";
 import { useSesion } from "../../hooks/useSesion";
 import { MENSAJES_CUENTA } from "../../tipos/contrato";
@@ -14,7 +16,6 @@ import { validarEntrar } from "../../validacion/cuenta";
 // Al entrar no se navega desde aquí: Stack.Protected cambia al inicio en cuanto
 // la sesión existe (src/app/_layout.tsx).
 export default function Entrar() {
-  const c = useColores();
   const { entrar, aviso } = useSesion();
   const { valores, errores, general, enviando, cambiar, manejarEnvio } = useFormulario({
     inicial: { correo: "", contrasena: "" },
@@ -23,26 +24,30 @@ export default function Entrar() {
   });
 
   let mensaje = null;
-  if (general) mensaje = <MensajeFormulario texto={general} />;
+  if (general) mensaje = <Aviso texto={general} />;
   else if (aviso === "sesionTerminada") {
-    mensaje = <MensajeFormulario variante="aviso" texto={MENSAJES_CUENTA.sesionTerminada} />;
+    mensaje = <Aviso tono="info" texto={MENSAJES_CUENTA.sesionTerminada} />;
   }
 
   return (
     <FormularioCuenta
       titulo="Entrar"
+      subtitulo="Qué bueno verte de nuevo. Sigue donde te quedaste."
       mensaje={mensaje}
       pie={
-        <Text style={[styles.pie, { color: c.textoSuave }]}>
+        <Texto variante="cuerpoChico" color="textoSuave">
           ¿No tienes cuenta?{" "}
-          <Link href="/registro" style={[styles.enlace, { color: c.primario }]}>
-            Crear cuenta
+          <Link href="/registro">
+            <Texto variante="cuerpoChico" color="primario" style={styles.enlace}>
+              Crear cuenta
+            </Texto>
           </Link>
-        </Text>
+        </Texto>
       }
     >
       <CampoTexto
         etiqueta="Correo"
+        icono={Mail}
         tipo="correo"
         valor={valores.correo}
         alCambiar={(valor) => cambiar("correo", valor)}
@@ -56,16 +61,18 @@ export default function Entrar() {
         error={errores.contrasena}
         alEnviar={manejarEnvio}
       />
-      <Boton titulo="Entrar" alPresionar={manejarEnvio} enviando={enviando} />
+      <Boton
+        titulo="Entrar"
+        iconoFinal={ArrowRight}
+        alPresionar={manejarEnvio}
+        enviando={enviando}
+      />
     </FormularioCuenta>
   );
 }
 
 const styles = StyleSheet.create({
-  pie: {
-    fontSize: 15,
-  },
   enlace: {
-    fontWeight: "600",
+    fontFamily: fuentes.seminegrita,
   },
 });

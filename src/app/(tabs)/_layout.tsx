@@ -1,29 +1,65 @@
 // En el SDK 58 las pestañas de JavaScript se importan de expo-router/js-tabs
 // (importarlas de "expo-router" está obsoleto).
 import { Tabs } from "expo-router/js-tabs";
+import { Compass, UserRound } from "lucide-react-native";
+import { StyleSheet } from "react-native";
+import Superficie from "../../componentes/Superficie";
+import { fuentes, radio } from "../../constantes/tema";
 import { useColores } from "../../hooks/useColores";
 
-// Pestañas con sesión. "Explorar" es el catálogo de cursos (spec F02); "Cuenta"
-// tiene el nombre, el correo y "Cerrar sesión" (spec F01).
+// Pestañas con sesión (docs/diseno.md, sección 4). "Explorar" es el catálogo de
+// cursos (spec F02); "Cuenta" tiene el nombre, el correo y "Cerrar sesión"
+// (spec F01). Cada pantalla dibuja su propio encabezado sobre el fondo
+// ambiental; la barra es de vidrio.
 export default function LayoutPestanas() {
   const c = useColores();
 
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: c.superficie },
-        headerTintColor: c.texto,
-        sceneStyle: { backgroundColor: c.fondo },
-        tabBarStyle: { backgroundColor: c.superficie, borderTopColor: c.borde },
+        headerShown: false,
+        sceneStyle: { backgroundColor: "transparent" },
+        tabBarStyle: styles.barra,
+        tabBarBackground: () => <Superficie tono="solido" elevada style={styles.fondoBarra} />,
         tabBarActiveTintColor: c.primario,
-        tabBarInactiveTintColor: c.textoSuave,
-        // sin íconos por ahora: no hay librería de íconos en el proyecto
-        tabBarIconStyle: { display: "none" },
-        tabBarLabelStyle: { fontSize: 15, fontWeight: "600" },
+        tabBarInactiveTintColor: c.textoTenue,
+        tabBarLabelStyle: styles.etiqueta,
       }}
     >
-      <Tabs.Screen name="index" options={{ title: "Explorar" }} />
-      <Tabs.Screen name="cuenta" options={{ title: "Cuenta" }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: "Explorar",
+          tabBarIcon: ({ color, size }) => <Compass color={color} size={size} strokeWidth={2} />,
+        }}
+      />
+      <Tabs.Screen
+        name="cuenta"
+        options={{
+          title: "Cuenta",
+          tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} strokeWidth={2} />,
+        }}
+      />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  barra: {
+    borderTopWidth: 0,
+    backgroundColor: "transparent",
+    elevation: 0,
+  },
+  fondoBarra: {
+    ...StyleSheet.absoluteFill,
+    borderBottomWidth: 0,
+    borderTopLeftRadius: radio.grande,
+    borderTopRightRadius: radio.grande,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  etiqueta: {
+    fontFamily: fuentes.seminegrita,
+    fontSize: 12,
+  },
+});

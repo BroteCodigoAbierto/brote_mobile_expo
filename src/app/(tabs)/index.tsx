@@ -1,11 +1,17 @@
+import { Library, SearchX } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Aviso from "../../componentes/Aviso";
 import Boton from "../../componentes/Boton";
 import Buscador from "../../componentes/Buscador";
 import ErrorCarga from "../../componentes/ErrorCarga";
-import MensajeFormulario from "../../componentes/MensajeFormulario";
+import EstadoVacio from "../../componentes/EstadoVacio";
+import FondoAmbiental from "../../componentes/FondoAmbiental";
+import IndicadorCarga from "../../componentes/IndicadorCarga";
 import TarjetaCurso from "../../componentes/TarjetaCurso";
-import { espacio } from "../../constantes/tema";
+import Texto from "../../componentes/Texto";
+import { espacio, MARGEN_PANTALLA } from "../../constantes/tema";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { useColores } from "../../hooks/useColores";
 
@@ -56,103 +62,106 @@ export default function Explorar() {
     <Buscador valor={texto} alCambiar={setTexto} buscando={buscando} />
   );
 
-  if (fase === "cargando") {
-    return (
-      <View style={styles.pantalla}>
-        {buscador}
-        <View style={styles.centro}>
-          <ActivityIndicator size="large" color={c.primario} accessibilityLabel="Cargando" />
-        </View>
-      </View>
-    );
-  }
-
-  if (fase === "error") {
-    return (
-      <View style={styles.pantalla}>
-        {buscador}
-        {mensajeError && <ErrorCarga mensaje={mensajeError} alReintentar={reintentar} />}
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.pantalla}>
-      {buscador}
-      {mensajeErrorRecarga && <MensajeFormulario texto={mensajeErrorRecarga} />}
+  let cuerpo;
+  if (fase === "cargando") cuerpo = <IndicadorCarga />;
+  else if (fase === "error") {
+    cuerpo = mensajeError && <ErrorCarga mensaje={mensajeError} alReintentar={reintentar} />;
+  } else {
+    cuerpo = (
       <FlatList
-        style={buscando && styles.atenuada}
-        contentContainerStyle={styles.lista}
+        style={[styles.lista, buscando && styles.atenuada]}
+        contentContainerStyle={styles.contenidoLista}
         data={cursos}
         keyExtractor={(curso) => curso.id}
         renderItem={({ item }) => <TarjetaCurso curso={item} />}
         // https://reactnative.dev/docs/flatlist
         onEndReached={cargarMas}
         onEndReachedThreshold={0.5}
-        refreshing={recargando}
-        onRefresh={recargar}
+        refreshControl={
+          <RefreshControl
+            refreshing={recargando}
+            onRefresh={recargar}
+            tintColor={c.primario}
+            colors={[c.primario]}
+          />
+        }
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         // dentro de la lista, para que deslizar hacia abajo siga funcionando
         ListEmptyComponent={
           consulta === "" ? (
-            <Text style={[styles.aviso, { color: c.textoSuave }]}>
-              Todavía no hay cursos publicados.
-            </Text>
+            <EstadoVacio
+              icono={Library}
+              titulo="Todavía no hay cursos publicados."
+              texto="Cuando la comunidad publique sus primeros cursos, aparecerán aquí."
+            />
           ) : (
-            <View style={styles.sinResultados}>
-              <Text style={[styles.aviso, { color: c.textoSuave }]}>
-                No hay cursos que coincidan con «{consulta}».
-              </Text>
-              <Boton titulo="Borrar búsqueda" variante="secundario" alPresionar={borrarBusqueda} />
-            </View>
+            <EstadoVacio
+              icono={SearchX}
+              titulo={`No hay cursos que coincidan con «${consulta}».`}
+              texto="Prueba con otra palabra o revisa cómo está escrita."
+              accion={
+                <Boton
+                  titulo="Borrar búsqueda"
+                  variante="secundario"
+                  alPresionar={borrarBusqueda}
+                />
+              }
+            />
           )
         }
         ListFooterComponent={
           cargandoMas ? (
-            <ActivityIndicator
-              style={styles.pie}
-              color={c.primario}
-              accessibilityLabel="Cargando más cursos"
-            />
+            <IndicadorCarga tamano="chico" etiqueta="Cargando más cursos" />
           ) : errorMas && mensajeError ? (
             <ErrorCarga mensaje={mensajeError} alReintentar={reintentar} />
           ) : undefined
         }
       />
-    </View>
+    );
+  }
+
+  return (
+    <FondoAmbiental>
+      <SafeAreaView style={styles.pantalla} edges={["top"]}>
+        <View style={styles.encabezado}>
+          <Texto variante="titulo1" accessibilityRole="header">
+            Explora cursos
+          </Texto>
+          <Texto variante="cuerpoChico" color="textoSuave">
+            Lecciones cortas e interactivas, creadas por la comunidad.
+          </Texto>
+        </View>
+        {buscador}
+        {mensajeErrorRecarga && <Aviso texto={mensajeErrorRecarga} />}
+        {cuerpo}
+      </SafeAreaView>
+    </FondoAmbiental>
   );
 }
 
 const styles = StyleSheet.create({
   pantalla: {
     flex: 1,
-    paddingTop: espacio.tres,
-    paddingHorizontal: espacio.tres,
-    gap: espacio.tres,
+    paddingTop: espacio[5],
+    paddingHorizontal: MARGEN_PANTALLA,
+    gap: espacio[5],
   },
-  centro: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  encabezado: {
+    gap: espacio[2],
   },
+  // la lista llega hasta los bordes para que la sombra de las tarjetas no se corte
   lista: {
-    gap: espacio.tres,
-    paddingBottom: espacio.cuatro,
+    marginHorizontal: -MARGEN_PANTALLA,
+  },
+  contenidoLista: {
+    gap: espacio[5],
+    paddingHorizontal: MARGEN_PANTALLA,
+    paddingTop: espacio[2],
+    paddingBottom: espacio[8],
   },
   // la lista anterior mientras llegan los resultados de la búsqueda nueva
   atenuada: {
-    opacity: 0.5,
-  },
-  aviso: {
-    fontSize: 15,
-    textAlign: "center",
-    paddingVertical: espacio.cuatro,
-  },
-  sinResultados: {
-    alignItems: "center",
-  },
-  pie: {
-    paddingVertical: espacio.cuatro,
+    opacity: 0.55,
   },
 });

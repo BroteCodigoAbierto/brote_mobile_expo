@@ -1,7 +1,10 @@
+import { Eye, EyeOff, LockKeyhole } from "lucide-react-native";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
+import { AREA_TACTIL, espacio, fuentes, radio } from "../constantes/tema";
 import { useColores } from "../hooks/useColores";
 import CampoTexto from "./CampoTexto";
+import Texto from "./Texto";
 
 type Props = {
   etiqueta: string;
@@ -17,24 +20,29 @@ type Props = {
 export default function CampoContrasena({ autoComplete, ...props }: Props) {
   const [visible, setVisible] = useState(false);
   const c = useColores();
+  const Icono = visible ? EyeOff : Eye;
 
   return (
     <CampoTexto
       {...props}
+      icono={LockKeyhole}
       esPassword={!visible}
       autoComplete={autoComplete}
       textContentType={autoComplete === "new-password" ? "newPassword" : "password"}
       accesorio={
         <Pressable
           onPress={() => setVisible((v) => !v)}
-          style={styles.alternar}
-          hitSlop={8}
+          style={({ pressed }) => [
+            styles.alternar,
+            pressed && { backgroundColor: c.primarioSuave },
+          ]}
           accessibilityRole="button"
           accessibilityState={{ selected: visible }}
         >
-          <Text style={[styles.texto, { color: c.primario }]}>
+          <Icono size={17} color={c.primario} strokeWidth={2.25} />
+          <Texto variante="nota" color="primario" style={styles.texto}>
             {visible ? "Ocultar" : "Mostrar"}
-          </Text>
+          </Texto>
         </Pressable>
       }
     />
@@ -43,11 +51,14 @@ export default function CampoContrasena({ autoComplete, ...props }: Props) {
 
 const styles = StyleSheet.create({
   alternar: {
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espacio[2],
+    minHeight: AREA_TACTIL,
+    paddingHorizontal: espacio[4],
+    borderRadius: radio.chico,
   },
   texto: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontFamily: fuentes.seminegrita,
   },
 });
