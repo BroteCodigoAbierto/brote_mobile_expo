@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 // Envuelve una función que trae datos y expone los estados que piden las specs:
-// cargando, datos y error. `recargar` vuelve a pedirlos.
+// cargando, datos y error. `recargar` vuelve a pedirlos. `recargarEnSilencio`
+// también, pero sin poner `cargando` (no aparece el RefreshControl): si
+// responde, reemplaza los datos y borra el error; si falla, deja los datos y
+// pone el error, para mostrar el aviso encima (brote_specs, research de F04,
+// punto 8).
 // `traer` debe ser estable (una función de servicios/ o envuelta en useCallback),
 // si no, se vuelve a pedir en cada render.
 export function usePeticion<T>(traer: () => Promise<T>) {
@@ -37,5 +41,8 @@ export function usePeticion<T>(traer: () => Promise<T>) {
     setIntento((n) => n + 1);
   }
 
-  return { datos, cargando, error, recargar };
+  // estable: useRecargarAlVolver la usa en un efecto
+  const recargarEnSilencio = useCallback(() => setIntento((n) => n + 1), []);
+
+  return { datos, cargando, error, recargar, recargarEnSilencio };
 }

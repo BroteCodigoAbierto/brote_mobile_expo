@@ -13,6 +13,7 @@ import FondoAmbiental from "../../../componentes/FondoAmbiental";
 import IndicadorCarga from "../../../componentes/IndicadorCarga";
 import ResultadoLeccion from "../../../componentes/ResultadoLeccion";
 import { MARGEN_PANTALLA } from "../../../constantes/tema";
+import { useGuardarProgreso } from "../../../hooks/useGuardarProgreso";
 import { usePeticion } from "../../../hooks/usePeticion";
 import { useReproductor } from "../../../hooks/useReproductor";
 import { esNoDisponible, leerErrorDeCarga } from "../../../servicios/cursos";
@@ -78,6 +79,8 @@ export default function PantallaLeccion() {
   return (
     <CursarLeccion
       key={datos.leccion.id}
+      idCurso={idCurso}
+      idLeccion={idLeccion}
       leccion={datos.leccion}
       actividades={actividades}
       alSalir={salir}
@@ -96,6 +99,8 @@ function Marco({ children }: { children: ReactNode }) {
 }
 
 type PropsCursarLeccion = {
+  idCurso: string;
+  idLeccion: string;
   leccion: DetalleLeccion;
   actividades: Actividad[];
   alSalir: () => void;
@@ -103,8 +108,8 @@ type PropsCursarLeccion = {
 
 // La lección ya cargada: el reproductor, la pantalla final y la confirmación
 // de salida. Va aparte porque sus hooks necesitan las actividades.
-function CursarLeccion({ leccion, actividades, alSalir }: PropsCursarLeccion) {
-  const reproductor = useReproductor(actividades.length);
+function CursarLeccion({ idCurso, idLeccion, leccion, actividades, alSalir }: PropsCursarLeccion) {
+  const reproductor = useReproductor(actividades);
   const { hizoAlgo, terminada, aciertos, preguntas } = reproductor;
   const [saliendo, setSaliendo] = useState(false);
 
@@ -128,26 +133,67 @@ function CursarLeccion({ leccion, actividades, alSalir }: PropsCursarLeccion) {
 
   if (terminada) {
     return (
-      <Marco>
-        <EncabezadoLeccion
-          alSalir={alSalir}
-          progreso={{ actual: actividades.length, total: actividades.length }}
-        />
-        <View style={styles.estado}>
-          <ResultadoLeccion
-            titulo={leccion.titulo}
-            aciertos={aciertos}
-            preguntas={preguntas}
-            alVolver={alSalir}
-          />
-        </View>
-      </Marco>
+      <LeccionTerminada
+        idCurso={idCurso}
+        idLeccion={idLeccion}
+        titulo={leccion.titulo}
+        total={actividades.length}
+        aciertos={aciertos}
+        preguntas={preguntas}
+        alSalir={alSalir}
+      />
     );
   }
 
   return (
     <Marco>
       <ReproductorLeccion actividades={actividades} reproductor={reproductor} alSalir={alSalir} />
+    </Marco>
+  );
+}
+
+type PropsLeccionTerminada = {
+  idCurso: string;
+  idLeccion: string;
+  titulo: string;
+  total: number;
+  aciertos: number;
+  preguntas: number;
+  alSalir: () => void;
+};
+
+// La pantalla final: guarda el resultado al aparecer (spec F04). Mientras
+// guarda, "Volver al curso" y la X esperan. usePreventRemove ya no bloquea
+// (terminada), así que el gesto de atrás sí sale: la petición sigue y el
+// detalle la muestra al recargar (research de F04, punto 7).
+function LeccionTerminada({
+  idCurso,
+  idLeccion,
+  titulo,
+  total,
+  aciertos,
+  preguntas,
+  alSalir,
+}: PropsLeccionTerminada) {
+  const { estado, reintentar } = useGuardarProgreso(idCurso, idLeccion, { aciertos, preguntas });
+
+  return (
+    <Marco>
+      <EncabezadoLeccion
+        alSalir={alSalir}
+        progreso={{ actual: total, total }}
+        deshabilitada={estado === "guardando"}
+      />
+      <View style={styles.estado}>
+        <ResultadoLeccion
+          titulo={titulo}
+          aciertos={aciertos}
+          preguntas={preguntas}
+          alVolver={alSalir}
+          guardado={estado}
+          alReintentar={reintentar}
+        />
+      </View>
     </Marco>
   );
 }

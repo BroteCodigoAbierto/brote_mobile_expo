@@ -24,7 +24,9 @@ Las reglas de Expo de `AGENTS.md` aplican: instala paquetes con
 
 ```text
 src/
-  app/                rutas de expo-router (cada archivo es una pantalla)
+  app/                rutas de expo-router (cada archivo es una pantalla): las pestañas
+                      (tabs)/ Explorar, Mis cursos (F04) y Cuenta; curso/ y leccion/
+                      se abren encima de ellas
   componentes/        componentes reutilizables
   actividades/        un componente por tipo de actividad, el registro tipo → componente
                       (registro.ts) y el reproductor de lecciones (F03)
@@ -51,8 +53,8 @@ src/
   `EstadoVacio`, `ErrorCarga`, `IndicadorCarga`, `Marca`, `PortadaCurso`,
   `TarjetaCurso` y, para las lecciones (F03), `BarraProgreso`,
   `BarraRespuesta`, `OpcionRespuesta`, `BloqueCodigo`, `TarjetaVolteable`,
-  `CampoEspacio` y `ResultadoLeccion` (la confirmación es `Alert.alert`).
-  Iconos de `lucide-react-native`.
+  `CampoEspacio` y `ResultadoLeccion` (la confirmación es `Alert.alert`), y
+  para el progreso (F04) `AvanceCurso`. Iconos de `lucide-react-native`.
 - Agregar un tipo de actividad: su componente en `actividades/` y una línea
   en `actividades/registro.ts` (el tipo del registro obliga a tenerlo).
 - Un componente o token nuevo se agrega primero a `docs/diseno.md` y también

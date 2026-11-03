@@ -74,7 +74,8 @@ export default function Boton({
         ) : (
           Icono && <Icono size={18} color={aspecto.texto} strokeWidth={2.25} />
         )}
-        <Texto variante="boton" style={{ color: aspecto.texto }}>
+        {/* un texto que no cabe (p. ej. "Continuar: {n}. {título}") se corta con "…" */}
+        <Texto variante="boton" numberOfLines={1} style={[styles.texto, { color: aspecto.texto }]}>
           {titulo}
         </Texto>
         {!enviando && IconoFinal && (
@@ -106,6 +107,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: espacio[3],
+    maxWidth: "100%",
+  },
+  texto: {
+    flexShrink: 1,
   },
   presionado: {
     opacity: 0.9,

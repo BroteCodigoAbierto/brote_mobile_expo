@@ -1,6 +1,6 @@
 import { CircleCheck, PartyPopper } from "lucide-react-native";
 import { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -11,20 +11,41 @@ import Animated, {
 } from "react-native-reanimated";
 import { espacio, movimiento } from "../constantes/tema";
 import { useColores, useSombras } from "../hooks/useColores";
+import Aviso from "./Aviso";
 import Boton from "./Boton";
 import Insignia from "./Insignia";
 import Texto from "./Texto";
+
+// Estado del progreso de la lección (spec F04). Los mismos valores que en la web.
+export type EstadoGuardado = "guardando" | "guardado" | "error" | "sinConexion" | "noDisponible";
 
 type Props = {
   titulo: string;
   aciertos: number;
   preguntas: number;
   alVolver: () => void;
+  // sin él no se muestra nada del guardado
+  guardado?: EstadoGuardado;
+  alReintentar?: () => void;
 };
 
+const AVISOS_GUARDADO = {
+  error: "No se pudo guardar tu progreso.",
+  sinConexion: "Sin conexión. Tu progreso no se guardó.",
+  noDisponible: "Esta lección ya no está disponible. Tu progreso no se guardó.",
+} as const;
+
 // Fin de la lección (docs/diseno.md, sección 6): celebración breve y sin
-// sonido, y cuántas acertó si la lección tiene preguntas.
-export default function ResultadoLeccion({ titulo, aciertos, preguntas, alVolver }: Props) {
+// sonido, cuántas acertó si la lección tiene preguntas y si se guardó el
+// progreso. "Volver al curso" espera a que termine de guardarse.
+export default function ResultadoLeccion({
+  titulo,
+  aciertos,
+  preguntas,
+  alVolver,
+  guardado,
+  alReintentar,
+}: Props) {
   const c = useColores();
   const s = useSombras();
   const reducirMovimiento = useReducedMotion();
@@ -79,9 +100,61 @@ export default function ResultadoLeccion({ titulo, aciertos, preguntas, alVolver
           />
         </Animated.View>
       )}
+      {guardado && (
+        <View style={styles.guardado} accessibilityLiveRegion="polite">
+          <EstadoDelGuardado guardado={guardado} alReintentar={alReintentar} />
+        </View>
+      )}
       <View style={styles.boton}>
-        <Boton titulo="Volver al curso" alPresionar={alVolver} />
+        <Boton
+          titulo="Volver al curso"
+          alPresionar={alVolver}
+          enviando={guardado === "guardando"}
+        />
       </View>
+    </View>
+  );
+}
+
+type PropsEstadoDelGuardado = {
+  guardado: EstadoGuardado;
+  alReintentar?: () => void;
+};
+
+function EstadoDelGuardado({ guardado, alReintentar }: PropsEstadoDelGuardado) {
+  const c = useColores();
+
+  if (guardado === "guardando") {
+    return (
+      <View style={styles.fila}>
+        <ActivityIndicator size="small" color={c.textoSuave} />
+        <Texto variante="nota" color="textoSuave">
+          Guardando tu progreso…
+        </Texto>
+      </View>
+    );
+  }
+  if (guardado === "guardado") {
+    return (
+      <View style={styles.fila}>
+        <CircleCheck size={18} color={c.broteFuerte} strokeWidth={2.25} />
+        <Texto variante="nota" color="broteFuerte">
+          Progreso guardado
+        </Texto>
+      </View>
+    );
+  }
+  return (
+    <View style={styles.problema}>
+      <Aviso tono="error" texto={AVISOS_GUARDADO[guardado]} />
+      {guardado !== "noDisponible" && alReintentar && (
+        <Boton
+          titulo="Reintentar"
+          variante="secundario"
+          tamano="chico"
+          alPresionar={alReintentar}
+        />
+      )}
     </View>
   );
 }
@@ -109,5 +182,19 @@ const styles = StyleSheet.create({
   },
   boton: {
     alignSelf: "stretch",
+  },
+  guardado: {
+    alignSelf: "stretch",
+    alignItems: "center",
+  },
+  fila: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espacio[3],
+  },
+  problema: {
+    alignSelf: "stretch",
+    alignItems: "center",
+    gap: espacio[4],
   },
 });
