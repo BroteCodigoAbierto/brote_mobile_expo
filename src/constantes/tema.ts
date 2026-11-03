@@ -1,4 +1,4 @@
-import type { TextStyle } from "react-native";
+import { Platform, type TextStyle } from "react-native";
 
 // Valores de diseño de Brote (brote_specs/docs/diseno.md, sección 2). Mismos
 // nombres y valores que brote_web_react/src/estilos/tokens.css. Los colores que
@@ -28,6 +28,17 @@ export const colores = {
     vidrioSuave: "rgba(238, 240, 255, 0.66)",
     vidrioOpaco: "#FCFCFF",
     vidrioBorde: "rgba(255, 255, 255, 0.90)",
+    // F03: final del degradado de la barra de progreso (empieza en brote)
+    progresoFin: "#84CC16",
+    // F03: el panel de código es oscuro también en modo claro: mismos valores
+    // en los dos modos (docs/diseno.md, sección 2.1, "Código")
+    codigoFondo: "#16142E",
+    codigoTexto: "#ECEBFA",
+    codigoAgregado: "#BEF264",
+    codigoAgregadoFondo: "rgba(163, 230, 53, 0.16)",
+    codigoEliminado: "#FDA4AF",
+    codigoEliminadoFondo: "rgba(255, 107, 133, 0.16)",
+    codigoEncabezado: "#A29DFF",
   },
   oscuro: {
     primario: "#8B85FF",
@@ -52,6 +63,17 @@ export const colores = {
     vidrioSuave: "rgba(46, 42, 92, 0.55)",
     vidrioOpaco: "#1B1A33",
     vidrioBorde: "rgba(255, 255, 255, 0.10)",
+    // F03: final del degradado de la barra de progreso (empieza en brote)
+    progresoFin: "#84CC16",
+    // F03: el panel de código es oscuro también en modo claro: mismos valores
+    // en los dos modos (docs/diseno.md, sección 2.1, "Código")
+    codigoFondo: "#16142E",
+    codigoTexto: "#ECEBFA",
+    codigoAgregado: "#BEF264",
+    codigoAgregadoFondo: "rgba(163, 230, 53, 0.16)",
+    codigoEliminado: "#FDA4AF",
+    codigoEliminadoFondo: "rgba(255, 107, 133, 0.16)",
+    codigoEncabezado: "#A29DFF",
   },
 } as const;
 
@@ -143,6 +165,8 @@ export const fuentes = {
   seminegrita: "PlusJakartaSans_600SemiBold",
   negrita: "PlusJakartaSans_700Bold",
   extranegrita: "PlusJakartaSans_800ExtraBold",
+  // F03: la monoespaciada del sistema
+  codigo: Platform.select({ ios: "Menlo", default: "monospace" }),
 } as const;
 
 // Con una familia por peso no se usa fontWeight (Android lo ignoraría).
@@ -163,6 +187,7 @@ export const tipografia = {
     letterSpacing: 1.4,
     textTransform: "uppercase",
   },
+  codigo: { fontFamily: fuentes.codigo, fontSize: 14, lineHeight: 22 },
 } as const satisfies Record<string, TextStyle>;
 
 export type VarianteTexto = keyof typeof tipografia;

@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, BookOpen, CircleSlash, NotebookPen } from "lucide-react-native";
+import { ArrowLeft, BookOpen, ChevronRight, CircleSlash, NotebookPen } from "lucide-react-native";
 import { useCallback } from "react";
-import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Boton from "../../componentes/Boton";
 import ErrorCarga from "../../componentes/ErrorCarga";
@@ -19,7 +19,8 @@ import { esNoDisponible, leerErrorDeCarga, traerCurso } from "../../servicios/cu
 import { MENSAJES_CATALOGO } from "../../tipos/contrato";
 import { textoCantidadLecciones } from "../../utilidades/cursos";
 
-// Detalle de un curso publicado (spec F02): sus datos y la lista de lecciones.
+// Detalle de un curso publicado (spec F02): sus datos y la lista de lecciones,
+// que se abren para cursarlas (F03).
 export default function DetalleCurso() {
   const c = useColores();
   const { idCurso } = useLocalSearchParams<{ idCurso: string }>();
@@ -79,13 +80,20 @@ export default function DetalleCurso() {
           ) : (
             <Superficie style={styles.lista}>
               {curso.lecciones.map((leccion, indice) => (
-                <View
+                <Pressable
                   key={leccion.id}
-                  style={[
+                  onPress={() =>
+                    router.push({
+                      pathname: "/leccion/[idCurso]/[idLeccion]",
+                      params: { idCurso: curso.id, idLeccion: leccion.id },
+                    })
+                  }
+                  style={({ pressed }) => [
                     styles.leccion,
                     indice > 0 && { borderTopWidth: 1, borderColor: c.borde },
+                    pressed && [styles.presionada, { backgroundColor: c.primarioSuave }],
                   ]}
-                  accessible
+                  accessibilityRole="button"
                   accessibilityLabel={`${leccion.posicion}. ${leccion.titulo}`}
                 >
                   <View style={[styles.numero, { backgroundColor: c.primarioSuave }]}>
@@ -94,7 +102,8 @@ export default function DetalleCurso() {
                     </Texto>
                   </View>
                   <Texto style={styles.tituloLeccion}>{leccion.titulo}</Texto>
-                </View>
+                  <ChevronRight size={20} color={c.textoTenue} strokeWidth={2.25} />
+                </Pressable>
               ))}
             </Superficie>
           )}
@@ -186,5 +195,9 @@ const styles = StyleSheet.create({
   tituloLeccion: {
     flex: 1,
     fontFamily: fuentes.medio,
+  },
+  presionada: {
+    borderRadius: radio.medio,
+    transform: [{ scale: 0.98 }],
   },
 });
