@@ -1,8 +1,17 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, BookOpen, ChevronRight, CircleSlash, NotebookPen } from "lucide-react-native";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  ChevronRight,
+  CircleSlash,
+  NotebookPen,
+} from "lucide-react-native";
 import { useCallback } from "react";
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AvanceCurso from "../../componentes/AvanceCurso";
+import Aviso from "../../componentes/Aviso";
 import Boton from "../../componentes/Boton";
 import ErrorCarga from "../../componentes/ErrorCarga";
 import EstadoVacio from "../../componentes/EstadoVacio";
@@ -15,18 +24,27 @@ import Texto from "../../componentes/Texto";
 import { espacio, fuentes, MARGEN_PANTALLA, radio } from "../../constantes/tema";
 import { useColores } from "../../hooks/useColores";
 import { usePeticion } from "../../hooks/usePeticion";
+import { useRecargarAlVolver } from "../../hooks/useRecargarAlVolver";
 import { esNoDisponible, leerErrorDeCarga, traerCurso } from "../../servicios/cursos";
-import { MENSAJES_CATALOGO } from "../../tipos/contrato";
+import { MENSAJES_CATALOGO, type DetalleCurso as Curso } from "../../tipos/contrato";
 import { textoCantidadLecciones } from "../../utilidades/cursos";
+import { avanceCurso, textoBotonSiguiente } from "../../utilidades/progreso";
 
-// Detalle de un curso publicado (spec F02): sus datos y la lista de lecciones,
-// que se abren para cursarlas (F03).
+function abrirLeccion(idCurso: string, idLeccion: string) {
+  router.push({ pathname: "/leccion/[idCurso]/[idLeccion]", params: { idCurso, idLeccion } });
+}
+
+// Detalle de un curso publicado (spec F02): sus datos, el avance del alumno
+// (F04) y la lista de lecciones, que se abren para cursarlas (F03). Queda
+// montado debajo de la lección, así que al volver se recarga en silencio para
+// mostrar el avance nuevo (research de F04, punto 8).
 export default function DetalleCurso() {
   const c = useColores();
   const { idCurso } = useLocalSearchParams<{ idCurso: string }>();
-  const { datos, cargando, error, recargar } = usePeticion(
+  const { datos, cargando, error, recargar, recargarEnSilencio } = usePeticion(
     useCallback(() => traerCurso(idCurso), [idCurso]),
   );
+  useRecargarAlVolver(recargarEnSilencio);
 
   function verCursos() {
     if (router.canGoBack()) router.back();
@@ -45,13 +63,28 @@ export default function DetalleCurso() {
         />
       );
     }
-    if (error || !datos) {
+    if (!datos) {
       return <ErrorCarga mensaje={leerErrorDeCarga(error)} alReintentar={recargar} />;
     }
 
     const { curso } = datos;
     return (
       <>
+        {/* una recarga (al volver o al deslizar) que falló: los datos se quedan */}
+        {error ? (
+          <View style={styles.errorRecarga}>
+            <Aviso texto={leerErrorDeCarga(error)} />
+            <View style={styles.reintentar}>
+              <Boton
+                titulo="Reintentar"
+                variante="secundario"
+                tamano="chico"
+                alPresionar={recargar}
+              />
+            </View>
+          </View>
+        ) : null}
+
         <Superficie elevada style={styles.encabezado}>
           <PortadaCurso id={curso.id} titulo={curso.titulo} tamano="detalle" />
           <View style={styles.datos}>
@@ -71,6 +104,8 @@ export default function DetalleCurso() {
 
         <Texto color="textoSuave">{curso.descripcion}</Texto>
 
+        {curso.lecciones.length > 0 && <Avance curso={curso} />}
+
         <View style={styles.lecciones}>
           <Texto variante="seccion" color="textoSuave" accessibilityRole="header">
             Lecciones
@@ -82,12 +117,7 @@ export default function DetalleCurso() {
               {curso.lecciones.map((leccion, indice) => (
                 <Pressable
                   key={leccion.id}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/leccion/[idCurso]/[idLeccion]",
-                      params: { idCurso: curso.id, idLeccion: leccion.id },
-                    })
-                  }
+                  onPress={() => abrirLeccion(curso.id, leccion.id)}
                   style={({ pressed }) => [
                     styles.leccion,
                     indice > 0 && { borderTopWidth: 1, borderColor: c.borde },
@@ -142,6 +172,29 @@ export default function DetalleCurso() {
   );
 }
 
+type PropsAvance = {
+  curso: Curso;
+};
+
+// Cuánto lleva y por dónde seguir (docs/diseno.md, sección 5, "Detalle del
+// curso con progreso"): el botón abre la primera lección sin completar.
+function Avance({ curso }: PropsAvance) {
+  const { completadas, total, siguiente } = avanceCurso(curso.lecciones);
+
+  return (
+    <Superficie style={styles.avance}>
+      <AvanceCurso completadas={completadas} total={total} />
+      {siguiente && (
+        <Boton
+          titulo={textoBotonSiguiente(siguiente, completadas)}
+          iconoFinal={ArrowRight}
+          alPresionar={() => abrirLeccion(curso.id, siguiente.id)}
+        />
+      )}
+    </Superficie>
+  );
+}
+
 const styles = StyleSheet.create({
   pantalla: {
     flex: 1,
@@ -164,6 +217,16 @@ const styles = StyleSheet.create({
   },
   datos: {
     gap: espacio[4],
+  },
+  errorRecarga: {
+    gap: espacio[4],
+  },
+  reintentar: {
+    alignItems: "center",
+  },
+  avance: {
+    padding: espacio[6],
+    gap: espacio[5],
   },
   autor: {
     fontFamily: fuentes.seminegrita,
