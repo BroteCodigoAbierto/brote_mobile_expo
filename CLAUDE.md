@@ -26,6 +26,8 @@ Las reglas de Expo de `AGENTS.md` aplican: instala paquetes con
 src/
   app/                rutas de expo-router (cada archivo es una pantalla)
   componentes/        componentes reutilizables
+  actividades/        un componente por tipo de actividad, el registro tipo → componente
+                      (registro.ts) y el reproductor de lecciones (F03)
   constantes/tema.ts  tokens del sistema de diseño (mismos nombres y valores que la web)
   hooks/              useColores (y useSombras), usePeticion y hooks por recurso
   servicios/          api.ts (pedir, ErrorHttp) y funciones por recurso
@@ -47,7 +49,12 @@ src/
 - Componentes del sistema de diseño: `Texto`, `FondoAmbiental`, `Superficie`,
   `Boton`, `CampoTexto`, `CampoContrasena`, `Buscador`, `Aviso`, `Insignia`,
   `EstadoVacio`, `ErrorCarga`, `IndicadorCarga`, `Marca`, `PortadaCurso`,
-  `TarjetaCurso`. Iconos de `lucide-react-native`.
+  `TarjetaCurso` y, para las lecciones (F03), `BarraProgreso`,
+  `BarraRespuesta`, `OpcionRespuesta`, `BloqueCodigo`, `TarjetaVolteable`,
+  `CampoEspacio` y `ResultadoLeccion` (la confirmación es `Alert.alert`).
+  Iconos de `lucide-react-native`.
+- Agregar un tipo de actividad: su componente en `actividades/` y una línea
+  en `actividades/registro.ts` (el tipo del registro obliga a tenerlo).
 - Un componente o token nuevo se agrega primero a `docs/diseno.md` y también
   en la web, con el mismo nombre.
 - Los componentes no llaman `fetch`: usan `servicios/` y `usePeticion`.
