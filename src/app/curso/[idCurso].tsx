@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BookOpen,
   ChevronRight,
+  CircleCheck,
   CircleSlash,
   NotebookPen,
 } from "lucide-react-native";
@@ -28,7 +29,7 @@ import { useRecargarAlVolver } from "../../hooks/useRecargarAlVolver";
 import { esNoDisponible, leerErrorDeCarga, traerCurso } from "../../servicios/cursos";
 import { MENSAJES_CATALOGO, type DetalleCurso as Curso } from "../../tipos/contrato";
 import { textoCantidadLecciones } from "../../utilidades/cursos";
-import { avanceCurso, textoBotonSiguiente } from "../../utilidades/progreso";
+import { avanceCurso, textoAciertos, textoBotonSiguiente } from "../../utilidades/progreso";
 
 function abrirLeccion(idCurso: string, idLeccion: string) {
   router.push({ pathname: "/leccion/[idCurso]/[idLeccion]", params: { idCurso, idLeccion } });
@@ -115,25 +116,12 @@ export default function DetalleCurso() {
           ) : (
             <Superficie style={styles.lista}>
               {curso.lecciones.map((leccion, indice) => (
-                <Pressable
+                <FilaLeccion
                   key={leccion.id}
-                  onPress={() => abrirLeccion(curso.id, leccion.id)}
-                  style={({ pressed }) => [
-                    styles.leccion,
-                    indice > 0 && { borderTopWidth: 1, borderColor: c.borde },
-                    pressed && [styles.presionada, { backgroundColor: c.primarioSuave }],
-                  ]}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${leccion.posicion}. ${leccion.titulo}`}
-                >
-                  <View style={[styles.numero, { backgroundColor: c.primarioSuave }]}>
-                    <Texto variante="etiqueta" color="primario" style={styles.textoNumero}>
-                      {leccion.posicion}
-                    </Texto>
-                  </View>
-                  <Texto style={styles.tituloLeccion}>{leccion.titulo}</Texto>
-                  <ChevronRight size={20} color={c.textoTenue} strokeWidth={2.25} />
-                </Pressable>
+                  leccion={leccion}
+                  primera={indice === 0}
+                  alAbrir={() => abrirLeccion(curso.id, leccion.id)}
+                />
               ))}
             </Superficie>
           )}
@@ -169,6 +157,62 @@ export default function DetalleCurso() {
         </ScrollView>
       </SafeAreaView>
     </FondoAmbiental>
+  );
+}
+
+type PropsFilaLeccion = {
+  leccion: Curso["lecciones"][number];
+  primera: boolean;
+  alAbrir: () => void;
+};
+
+// Una lección de la lista; completada, con su marca y su resultado (docs/diseno.md,
+// sección 5, "Lección completada en la lista"): un icono y el texto, no solo el color.
+function FilaLeccion({ leccion, primera, alAbrir }: PropsFilaLeccion) {
+  const c = useColores();
+  const completada = leccion.progreso !== null;
+  const aciertos = leccion.progreso ? textoAciertos(leccion.progreso) : null;
+  const nombre = [
+    `${leccion.posicion}. ${leccion.titulo}`,
+    ...(completada ? ["completada"] : []),
+    ...(aciertos ? [aciertos] : []),
+  ].join(", ");
+
+  return (
+    <Pressable
+      onPress={alAbrir}
+      style={({ pressed }) => [
+        styles.leccion,
+        !primera && { borderTopWidth: 1, borderColor: c.borde },
+        pressed && [styles.presionada, { backgroundColor: c.primarioSuave }],
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={nombre}
+    >
+      <View
+        style={[styles.numero, { backgroundColor: completada ? c.broteSuave : c.primarioSuave }]}
+      >
+        <Texto
+          variante="etiqueta"
+          color={completada ? "broteFuerte" : "primario"}
+          style={styles.textoNumero}
+        >
+          {leccion.posicion}
+        </Texto>
+      </View>
+      <Texto style={styles.tituloLeccion}>{leccion.titulo}</Texto>
+      {completada && (
+        <View style={styles.completada}>
+          <CircleCheck size={20} color={c.broteFuerte} strokeWidth={2.25} />
+          {aciertos && (
+            <Texto variante="nota" color="textoSuave">
+              {aciertos}
+            </Texto>
+          )}
+        </View>
+      )}
+      <ChevronRight size={20} color={c.textoTenue} strokeWidth={2.25} />
+    </Pressable>
   );
 }
 
@@ -258,6 +302,11 @@ const styles = StyleSheet.create({
   tituloLeccion: {
     flex: 1,
     fontFamily: fuentes.medio,
+  },
+  completada: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espacio[3],
   },
   presionada: {
     borderRadius: radio.medio,
