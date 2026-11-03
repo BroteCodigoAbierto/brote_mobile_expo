@@ -23,5 +23,5 @@ export const registroActividades: {
 // Una versión vieja de la app puede recibir un tipo que todavía no conoce: se
 // salta en vez de romper la lección (research de F03, punto 7).
 export function actividadesConocidas(actividades: Actividad[]): Actividad[] {
-  return actividades.filter((actividad) => Object.hasOwn(registroActividades, actividad.tipo));
+  return actividades.filter((actividad) => actividad.tipo in registroActividades);
 }
