@@ -43,7 +43,11 @@ export default function BarraProgreso({ actual, total }: Props) {
       <Animated.View
         style={[
           styles.relleno,
-          { experimental_backgroundImage: `linear-gradient(90deg, ${c.brote}, ${c.progresoFin})` },
+          {
+            // el color sólido queda debajo por si no se dibuja el degradado
+            backgroundColor: c.brote,
+            experimental_backgroundImage: `linear-gradient(90deg, ${c.brote}, ${c.progresoFin})`,
+          },
           estiloRelleno,
         ]}
       />
