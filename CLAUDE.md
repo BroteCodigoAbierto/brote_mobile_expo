@@ -28,6 +28,7 @@ src/
   hooks/              useColores, usePeticion y hooks por recurso
   servicios/          api.ts (pedir, ErrorHttp) y funciones por recurso
   contextos/          estado global: un contexto por área, con useReducer
+  utilidades/         funciones de presentación sin estado (p. ej. la portada de un curso)
   config.ts           URL de la API (EXPO_PUBLIC_URL_API)
   tipos/contrato.ts   GENERADO desde brote_specs; no se edita a mano
 ```

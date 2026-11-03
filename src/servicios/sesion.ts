@@ -4,11 +4,7 @@ import type {
   RespuestaError,
   RespuestaUsuario,
 } from "../tipos/contrato";
-import { ErrorConexion, ErrorHttp, pedir } from "./api";
-
-export const MENSAJE_SIN_CONEXION = "Sin conexión. Revisa tu conexión e inténtalo de nuevo.";
-export const MENSAJE_SIN_SERVIDOR =
-  "No se pudo conectar con Brote. Inténtalo de nuevo en un momento.";
+import { ErrorConexion, ErrorHttp, MENSAJE_SIN_CONEXION, MENSAJE_SIN_SERVIDOR, pedir } from "./api";
 
 export function crearCuenta(cuerpo: CuerpoCrearCuenta) {
   return pedir<RespuestaUsuario>("/cuentas", { method: "POST", body: JSON.stringify(cuerpo) });

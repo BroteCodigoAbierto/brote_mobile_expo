@@ -35,6 +35,22 @@ export const colores = {
 // los dos modos tienen las mismas claves; el valor es cualquier color
 export type Colores = Record<keyof (typeof colores)["claro"], string>;
 
+// Portadas generadas de los cursos (F02): las mismas en claro y oscuro, todas
+// con contraste de al menos 4.5:1 con la letra blanca. Mismos valores y orden
+// que --color-portada-1 a -8 de la web: un curso tiene el mismo color en las dos.
+export const coloresPortada = [
+  "#2f7d4f",
+  "#2c6aa0",
+  "#7b4fa0",
+  "#a8443f",
+  "#9a5b13",
+  "#1f7a7a",
+  "#8a4a6b",
+  "#4a5a6a",
+] as const;
+
+export const sobrePortada = "#ffffff";
+
 export const espacio = {
   uno: 4,
   dos: 8,

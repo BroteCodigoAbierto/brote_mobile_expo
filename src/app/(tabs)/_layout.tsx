@@ -3,7 +3,7 @@
 import { Tabs } from "expo-router/js-tabs";
 import { useColores } from "../../hooks/useColores";
 
-// Pestañas con sesión. "Inicio" es provisional hasta F02 (catálogo); "Cuenta"
+// Pestañas con sesión. "Explorar" es el catálogo de cursos (spec F02); "Cuenta"
 // tiene el nombre, el correo y "Cerrar sesión" (spec F01).
 export default function LayoutPestanas() {
   const c = useColores();
@@ -22,7 +22,7 @@ export default function LayoutPestanas() {
         tabBarLabelStyle: { fontSize: 15, fontWeight: "600" },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: "Inicio" }} />
+      <Tabs.Screen name="index" options={{ title: "Explorar" }} />
       <Tabs.Screen name="cuenta" options={{ title: "Cuenta" }} />
     </Tabs>
   );
