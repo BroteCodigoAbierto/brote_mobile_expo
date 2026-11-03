@@ -1,17 +1,18 @@
 import { router, useLocalSearchParams } from "expo-router";
+import { ArrowLeft, BookOpen, CircleSlash, NotebookPen } from "lucide-react-native";
 import { useCallback } from "react";
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Boton from "../../componentes/Boton";
 import ErrorCarga from "../../componentes/ErrorCarga";
+import EstadoVacio from "../../componentes/EstadoVacio";
+import FondoAmbiental from "../../componentes/FondoAmbiental";
+import IndicadorCarga from "../../componentes/IndicadorCarga";
+import Insignia from "../../componentes/Insignia";
 import PortadaCurso from "../../componentes/PortadaCurso";
-import { espacio, radio } from "../../constantes/tema";
+import Superficie from "../../componentes/Superficie";
+import Texto from "../../componentes/Texto";
+import { espacio, fuentes, MARGEN_PANTALLA, radio } from "../../constantes/tema";
 import { useColores } from "../../hooks/useColores";
 import { usePeticion } from "../../hooks/usePeticion";
 import { esNoDisponible, leerErrorDeCarga, traerCurso } from "../../servicios/cursos";
@@ -32,21 +33,15 @@ export default function DetalleCurso() {
   }
 
   function contenido() {
-    if (cargando && !datos) {
-      return (
-        <View style={styles.centro}>
-          <ActivityIndicator size="large" color={c.primario} accessibilityLabel="Cargando" />
-        </View>
-      );
-    }
+    if (cargando && !datos) return <IndicadorCarga />;
     if (esNoDisponible(error)) {
       return (
-        <View style={styles.noDisponible}>
-          <Text style={[styles.aviso, { color: c.texto }]} accessibilityRole="alert">
-            {MENSAJES_CATALOGO.cursoNoDisponible}
-          </Text>
-          <Boton titulo="Ver cursos" variante="secundario" alPresionar={verCursos} />
-        </View>
+        <EstadoVacio
+          icono={CircleSlash}
+          titulo={MENSAJES_CATALOGO.cursoNoDisponible}
+          anunciar
+          accion={<Boton titulo="Ver cursos" variante="secundario" alPresionar={verCursos} />}
+        />
       );
     }
     if (error || !datos) {
@@ -56,112 +51,140 @@ export default function DetalleCurso() {
     const { curso } = datos;
     return (
       <>
-        <View style={styles.encabezado}>
+        <Superficie elevada style={styles.encabezado}>
           <PortadaCurso id={curso.id} titulo={curso.titulo} tamano="detalle" />
           <View style={styles.datos}>
-            <Text style={[styles.titulo, { color: c.texto }]} accessibilityRole="header">
+            <Texto variante="titulo2" accessibilityRole="header">
               {curso.titulo}
-            </Text>
-            <Text style={[styles.suave, { color: c.textoSuave }]}>Por {curso.autor.nombre}</Text>
-            <Text style={[styles.suave, { color: c.textoSuave }]}>
-              {textoCantidadLecciones(curso.cantidadLecciones)}
-            </Text>
+            </Texto>
+            <Texto variante="cuerpoChico" color="primario" style={styles.autor}>
+              Por {curso.autor.nombre}
+            </Texto>
+            <Insignia
+              tono="primario"
+              icono={BookOpen}
+              texto={textoCantidadLecciones(curso.cantidadLecciones)}
+            />
           </View>
+        </Superficie>
+
+        <Texto color="textoSuave">{curso.descripcion}</Texto>
+
+        <View style={styles.lecciones}>
+          <Texto variante="seccion" color="textoSuave" accessibilityRole="header">
+            Lecciones
+          </Texto>
+          {curso.lecciones.length === 0 ? (
+            <EstadoVacio icono={NotebookPen} titulo="Este curso todavía no tiene lecciones." />
+          ) : (
+            <Superficie style={styles.lista}>
+              {curso.lecciones.map((leccion, indice) => (
+                <View
+                  key={leccion.id}
+                  style={[
+                    styles.leccion,
+                    indice > 0 && { borderTopWidth: 1, borderColor: c.borde },
+                  ]}
+                  accessible
+                  accessibilityLabel={`${leccion.posicion}. ${leccion.titulo}`}
+                >
+                  <View style={[styles.numero, { backgroundColor: c.primarioSuave }]}>
+                    <Texto variante="etiqueta" color="primario" style={styles.textoNumero}>
+                      {leccion.posicion}
+                    </Texto>
+                  </View>
+                  <Texto style={styles.tituloLeccion}>{leccion.titulo}</Texto>
+                </View>
+              ))}
+            </Superficie>
+          )}
         </View>
-
-        <Text style={[styles.descripcion, { color: c.texto }]}>{curso.descripcion}</Text>
-
-        {curso.lecciones.length === 0 ? (
-          <Text style={[styles.suave, { color: c.textoSuave }]}>
-            Este curso todavía no tiene lecciones.
-          </Text>
-        ) : (
-          <View style={[styles.lista, { backgroundColor: c.superficie, borderColor: c.borde }]}>
-            {curso.lecciones.map((leccion, indice) => (
-              <Text
-                key={leccion.id}
-                style={[
-                  styles.leccion,
-                  { color: c.texto, borderColor: c.borde },
-                  indice > 0 && styles.separada,
-                ]}
-              >
-                {leccion.posicion}. {leccion.titulo}
-              </Text>
-            ))}
-          </View>
-        )}
       </>
     );
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.pantalla}
-      refreshControl={
-        <RefreshControl
-          refreshing={cargando && datos !== null}
-          onRefresh={recargar}
-          tintColor={c.primario}
-          colors={[c.primario]}
-        />
-      }
-    >
-      {contenido()}
-    </ScrollView>
+    <FondoAmbiental>
+      <SafeAreaView style={styles.pantalla} edges={["top"]}>
+        <View style={styles.barra}>
+          <Boton
+            titulo="Cursos"
+            variante="enlace"
+            tamano="chico"
+            icono={ArrowLeft}
+            alPresionar={verCursos}
+          />
+        </View>
+        <ScrollView
+          contentContainerStyle={styles.contenido}
+          refreshControl={
+            <RefreshControl
+              refreshing={cargando && datos !== null}
+              onRefresh={recargar}
+              tintColor={c.primario}
+              colors={[c.primario]}
+            />
+          }
+        >
+          {contenido()}
+        </ScrollView>
+      </SafeAreaView>
+    </FondoAmbiental>
   );
 }
 
 const styles = StyleSheet.create({
   pantalla: {
-    flexGrow: 1,
-    padding: espacio.tres,
-    gap: espacio.cuatro,
-  },
-  centro: {
     flex: 1,
+  },
+  barra: {
+    flexDirection: "row",
+    paddingHorizontal: MARGEN_PANTALLA - espacio[3],
+  },
+  contenido: {
+    flexGrow: 1,
+    paddingHorizontal: MARGEN_PANTALLA,
+    paddingTop: espacio[3],
+    paddingBottom: espacio[9],
+    gap: espacio[7],
+  },
+  encabezado: {
+    padding: espacio[6],
+    gap: espacio[6],
+    borderRadius: radio.enorme,
+  },
+  datos: {
+    gap: espacio[4],
+  },
+  autor: {
+    fontFamily: fuentes.seminegrita,
+  },
+  lecciones: {
+    gap: espacio[4],
+  },
+  lista: {
+    padding: espacio[3],
+  },
+  leccion: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espacio[5],
+    minHeight: 56,
+    paddingVertical: espacio[3],
+    paddingHorizontal: espacio[4],
+  },
+  numero: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
-  noDisponible: {
-    alignItems: "center",
-    gap: espacio.tres,
-    paddingVertical: espacio.cuatro,
+  textoNumero: {
+    fontFamily: fuentes.negrita,
   },
-  aviso: {
-    fontSize: 16,
-    textAlign: "center",
-  },
-  encabezado: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: espacio.tres,
-  },
-  datos: {
+  tituloLeccion: {
     flex: 1,
-    gap: espacio.uno,
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: "700",
-  },
-  suave: {
-    fontSize: 15,
-  },
-  descripcion: {
-    fontSize: 16,
-    lineHeight: 23,
-  },
-  lista: {
-    borderWidth: 1,
-    borderRadius: radio,
-  },
-  leccion: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: espacio.tres,
-  },
-  separada: {
-    borderTopWidth: 1,
+    fontFamily: fuentes.medio,
   },
 });

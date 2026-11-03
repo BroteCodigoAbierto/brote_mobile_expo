@@ -10,7 +10,9 @@ Antes de cambiar algo, lee:
 
 1. `../brote_specs/.specify/memory/constitution.md`
 2. `../brote_specs/docs/estilo-codigo.md`
-3. La spec y el plan de la feature: `../brote_specs/specs/features/F0X-.../`
+3. `../brote_specs/docs/diseno.md` si tocas pantallas: tokens, componentes y
+   patrones del sistema de diseño de vidrio. Es obligatorio seguirlo.
+4. La spec y el plan de la feature: `../brote_specs/specs/features/F0X-.../`
 
 ## Stack
 
@@ -24,8 +26,8 @@ Las reglas de Expo de `AGENTS.md` aplican: instala paquetes con
 src/
   app/                rutas de expo-router (cada archivo es una pantalla)
   componentes/        componentes reutilizables
-  constantes/tema.ts  colores, espacios y radio (mismos valores que la web)
-  hooks/              useColores, usePeticion y hooks por recurso
+  constantes/tema.ts  tokens del sistema de diseño (mismos nombres y valores que la web)
+  hooks/              useColores (y useSombras), usePeticion y hooks por recurso
   servicios/          api.ts (pedir, ErrorHttp) y funciones por recurso
   contextos/          estado global: un contexto por área, con useReducer
   utilidades/         funciones de presentación sin estado (p. ej. la portada de un curso)
@@ -37,7 +39,17 @@ src/
 
 - En `src/app/` solo van pantallas y layouts; todo lo demás fuera.
 - Estilos con `StyleSheet.create` al final del archivo; colores de
-  `useColores()`, nunca sueltos.
+  `useColores()`, sombras de `useSombras()`, espacios, radios y tipografía de
+  `constantes/tema.ts`. Nada de colores, tamaños ni fuentes sueltos.
+- Todo texto va con `Texto` (Plus Jakarta Sans con las variantes del sistema);
+  cada pantalla va dentro de `FondoAmbiental`, y las tarjetas y paneles son
+  `Superficie` (Liquid Glass en iOS, opaco en Android).
+- Componentes del sistema de diseño: `Texto`, `FondoAmbiental`, `Superficie`,
+  `Boton`, `CampoTexto`, `CampoContrasena`, `Buscador`, `Aviso`, `Insignia`,
+  `EstadoVacio`, `ErrorCarga`, `IndicadorCarga`, `Marca`, `PortadaCurso`,
+  `TarjetaCurso`. Iconos de `lucide-react-native`.
+- Un componente o token nuevo se agrega primero a `docs/diseno.md` y también
+  en la web, con el mismo nombre.
 - Los componentes no llaman `fetch`: usan `servicios/` y `usePeticion`.
 - Sin TanStack Query, SWR, Redux ni Zustand (decisiones 0010 y 0011 de
   brote_specs). Una dependencia nueva va justificada en el plan.

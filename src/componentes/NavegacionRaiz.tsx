@@ -27,15 +27,8 @@ export default function NavegacionRaiz() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.fondo } }}>
       <Stack.Protected guard={conSesion} redirectTo="/entrar">
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="curso/[idCurso]"
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: { backgroundColor: c.superficie },
-            headerTintColor: c.texto,
-          }}
-        />
+        {/* el detalle dibuja su propio botón de volver sobre el fondo ambiental */}
+        <Stack.Screen name="curso/[idCurso]" />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion} redirectTo="/">
         <Stack.Screen name="(auth)" />

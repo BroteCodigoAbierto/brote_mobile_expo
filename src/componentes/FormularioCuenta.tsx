@@ -1,10 +1,15 @@
 import type { ReactNode } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useColores } from "../hooks/useColores";
+import { espacio, MARGEN_PANTALLA, radio } from "../constantes/tema";
+import FondoAmbiental from "./FondoAmbiental";
+import Marca from "./Marca";
+import Superficie from "./Superficie";
+import Texto from "./Texto";
 
 type Props = {
   titulo: string;
+  subtitulo: string;
   // aviso o error general, arriba de los campos
   mensaje?: ReactNode;
   // campos y botón
@@ -13,30 +18,36 @@ type Props = {
   pie: ReactNode;
 };
 
-// Marco común de "Entrar" y "Crear cuenta": se desplaza para que el teclado no
-// tape los campos y los toques en el botón llegan aunque el teclado esté abierto.
-export default function FormularioCuenta({ titulo, mensaje, children, pie }: Props) {
-  const c = useColores();
-
+// Marco común de "Entrar" y "Crear cuenta" (docs/diseno.md, sección 5): se
+// desplaza para que el teclado no tape los campos y los toques en el botón
+// llegan aunque el teclado esté abierto.
+export default function FormularioCuenta({ titulo, subtitulo, mensaje, children, pie }: Props) {
   return (
-    <SafeAreaView style={[styles.pantalla, { backgroundColor: c.fondo }]}>
-      <KeyboardAvoidingView
-        style={styles.pantalla}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
-          <View style={styles.encabezado}>
-            <Text style={[styles.marca, { color: c.primario }]}>Brote</Text>
-            <Text style={[styles.titulo, { color: c.texto }]} accessibilityRole="header">
-              {titulo}
-            </Text>
-          </View>
-          {mensaje}
-          <View style={styles.formulario}>{children}</View>
-          <View style={styles.pie}>{pie}</View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    <FondoAmbiental>
+      <SafeAreaView style={styles.pantalla}>
+        <KeyboardAvoidingView
+          style={styles.pantalla}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
+            <Marca tamano="grande" />
+            <Superficie elevada style={styles.tarjeta}>
+              <View style={styles.encabezado}>
+                <Texto variante="titulo1" style={styles.centrado} accessibilityRole="header">
+                  {titulo}
+                </Texto>
+                <Texto variante="cuerpoChico" color="textoSuave" style={styles.centrado}>
+                  {subtitulo}
+                </Texto>
+              </View>
+              {mensaje}
+              <View style={styles.formulario}>{children}</View>
+            </Superficie>
+            <View style={styles.pie}>{pie}</View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </FondoAmbiental>
   );
 }
 
@@ -47,23 +58,22 @@ const styles = StyleSheet.create({
   contenido: {
     flexGrow: 1,
     justifyContent: "center",
-    padding: 24,
-    gap: 24,
+    padding: MARGEN_PANTALLA,
+    gap: espacio[7],
+  },
+  tarjeta: {
+    padding: espacio[7],
+    gap: espacio[7],
+    borderRadius: radio.enorme,
   },
   encabezado: {
-    alignItems: "center",
-    gap: 4,
+    gap: espacio[3],
   },
-  marca: {
-    fontSize: 36,
-    fontWeight: "700",
-  },
-  titulo: {
-    fontSize: 20,
-    fontWeight: "600",
+  centrado: {
+    textAlign: "center",
   },
   formulario: {
-    gap: 16,
+    gap: espacio[5],
   },
   pie: {
     alignItems: "center",
