@@ -1,6 +1,6 @@
-import { router, useLocalSearchParams, useNavigation, usePreventRemove } from "expo-router";
+import { router, useLocalSearchParams, usePreventRemove } from "expo-router";
 import { CircleSlash, NotebookPen } from "lucide-react-native";
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import EncabezadoLeccion from "../../../actividades/EncabezadoLeccion";
@@ -104,16 +104,25 @@ type PropsCursarLeccion = {
 // La lección ya cargada: el reproductor, la pantalla final y la confirmación
 // de salida. Va aparte porque sus hooks necesitan las actividades.
 function CursarLeccion({ leccion, actividades, alSalir }: PropsCursarLeccion) {
-  const navigation = useNavigation();
   const reproductor = useReproductor(actividades.length);
   const { hizoAlgo, terminada, aciertos, preguntas } = reproductor;
+  const [saliendo, setSaliendo] = useState(false);
 
   // La X, el botón atrás de Android y el gesto de iOS pasan por aquí (research
-  // de F03, punto 9). Cerrar la app no pide confirmación (spec F03).
-  usePreventRemove(hizoAlgo && !terminada, ({ data }) => {
+  // de F03, punto 9). Cerrar la app no pide confirmación (spec F03). "Salir"
+  // apaga el bloqueo y repite la acción con `repeat`: volver a despacharla con
+  // navigation.dispatch la vuelve a bloquear.
+  usePreventRemove(hizoAlgo && !terminada && !saliendo, ({ repeat }) => {
     Alert.alert("¿Salir de la lección?", "Perderás tu avance en esta lección.", [
       { text: "Seguir aquí", style: "cancel" },
-      { text: "Salir", style: "destructive", onPress: () => navigation.dispatch(data.action) },
+      {
+        text: "Salir",
+        style: "destructive",
+        onPress: () => {
+          setSaliendo(true);
+          repeat();
+        },
+      },
     ]);
   });
 
