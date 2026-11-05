@@ -51,6 +51,27 @@ export function partirEnEspacios(texto: string): string[] {
   return texto.split(MARCA_ESPACIO);
 }
 
+// Un trozo de una línea: texto (una palabra con sus espacios) o el espacio n.
+export type Pieza = { tipo: "texto"; texto: string } | { tipo: "espacio"; indice: number };
+
+// React Native no puede poner una vista dentro de un Text: cada línea es una fila
+// que se envuelve, hecha de palabras y espacios. Los espacios al inicio de la línea
+// se conservan como sangría (research de F03, punto 12).
+export function partirEnLineas(texto: string): Pieza[][] {
+  const lineas: Pieza[][] = [[]];
+  partirEnEspacios(texto).forEach((trozo, i) => {
+    if (i > 0) lineas[lineas.length - 1]!.push({ tipo: "espacio", indice: i - 1 });
+    trozo.split("\n").forEach((parte, j) => {
+      if (j > 0) lineas.push([]);
+      // cada palabra se queda con el espacio que la sigue, para envolver bien
+      for (const palabra of parte.match(/\s*\S+\s*|\s+/g) ?? []) {
+        lineas[lineas.length - 1]!.push({ tipo: "texto", texto: palabra });
+      }
+    });
+  });
+  return lineas;
+}
+
 // El texto con cada espacio lleno con su respuesta esperada (la primera aceptada).
 export function textoConRespuestas({ texto, espacios }: ActividadCompletarEspacios): string {
   return partirEnEspacios(texto).reduce((resultado, trozo, i) =>
