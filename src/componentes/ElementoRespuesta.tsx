@@ -108,9 +108,11 @@ export default function ElementoRespuesta({
           )}
           <Texto style={styles.texto}>{texto}</Texto>
           {estado === "correcta" && (
-            <CircleCheck size={22} color={c.broteFuerte} strokeWidth={2.25} />
+            <CircleCheck size={22} color={c.broteFuerte} strokeWidth={2.25} style={styles.icono} />
           )}
-          {estado === "incorrecta" && <CircleX size={22} color={c.error} strokeWidth={2.25} />}
+          {estado === "incorrecta" && (
+            <CircleX size={22} color={c.error} strokeWidth={2.25} style={styles.icono} />
+          )}
         </View>
       </Pressable>
     </Animated.View>
@@ -156,5 +158,9 @@ const styles = StyleSheet.create({
   texto: {
     flexShrink: 1,
     fontFamily: fuentes.medio,
+  },
+  // al borde, como en OpcionRespuesta
+  icono: {
+    marginLeft: "auto",
   },
 });
