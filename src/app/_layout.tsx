@@ -8,6 +8,8 @@ import {
 } from "@expo-google-fonts/plus-jakarta-sans";
 import { SplashScreen } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { StyleSheet } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NavegacionRaiz from "../componentes/NavegacionRaiz";
 import SesionProvider from "../contextos/SesionProvider";
 
@@ -28,10 +30,19 @@ export default function LayoutRaiz() {
   // si las fuentes no cargan se sigue con la del sistema
   if (!fuentesListas && !errorFuentes) return null;
 
+  // las actividades de relacionar arrastran con gestos (F11)
   return (
-    <SesionProvider>
-      <NavegacionRaiz />
-      <StatusBar style="auto" />
-    </SesionProvider>
+    <GestureHandlerRootView style={styles.raiz}>
+      <SesionProvider>
+        <NavegacionRaiz />
+        <StatusBar style="auto" />
+      </SesionProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  raiz: {
+    flex: 1,
+  },
+});
