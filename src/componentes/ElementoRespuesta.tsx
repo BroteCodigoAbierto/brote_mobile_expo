@@ -74,6 +74,12 @@ export default function ElementoRespuesta({
     correcta: { borde: c.broteFuerte, fondo: c.broteSuave, sombra: undefined },
     incorrecta: { borde: c.error, fondo: c.errorSuave, sombra: undefined },
   }[estado];
+  const icono =
+    estado === "correcta"
+      ? (tamano: number) => <CircleCheck size={tamano} color={c.broteFuerte} strokeWidth={2.25} />
+      : estado === "incorrecta"
+        ? (tamano: number) => <CircleX size={tamano} color={c.error} strokeWidth={2.25} />
+        : null;
   const borde = resaltada ? c.primario : aspecto.borde;
   const fondo = resaltada ? c.primarioSuave : aspecto.fondo;
 
@@ -104,15 +110,17 @@ export default function ElementoRespuesta({
               <Texto variante="etiqueta" color="primario">
                 {marca}
               </Texto>
+              {/* con número, el icono va de insignia: al borde le quitaría ancho al texto en
+                  las columnas de emparejar, y las palabras se partirían */}
+              {icono && (
+                <View style={[styles.insignia, { backgroundColor: c.vidrioOpaco }]}>
+                  {icono(14)}
+                </View>
+              )}
             </View>
           )}
           <Texto style={styles.texto}>{texto}</Texto>
-          {estado === "correcta" && (
-            <CircleCheck size={22} color={c.broteFuerte} strokeWidth={2.25} style={styles.icono} />
-          )}
-          {estado === "incorrecta" && (
-            <CircleX size={22} color={c.error} strokeWidth={2.25} style={styles.icono} />
-          )}
+          {marca === undefined && icono && <View style={styles.icono}>{icono(22)}</View>}
         </View>
       </Pressable>
     </Animated.View>
@@ -153,6 +161,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 24,
     height: 24,
+    borderRadius: radio.pildora,
+  },
+  // en la esquina superior derecha del número, un poco por fuera
+  insignia: {
+    position: "absolute",
+    top: -6,
+    right: -6,
+    width: 16,
+    height: 16,
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: radio.pildora,
   },
   texto: {
