@@ -39,6 +39,11 @@ export const colores = {
     codigoEliminado: "#FDA4AF",
     codigoEliminadoFondo: "rgba(255, 107, 133, 0.16)",
     codigoEncabezado: "#A29DFF",
+    // F12: la carpeta de la terminal, la etiqueta del lenguaje y el código de solo
+    // lectura; el cursor y el $ ("cursor brote"); y el fondo de la etiqueta
+    codigoTenue: "#A9A6C9",
+    codigoCursor: "#A3E635",
+    codigoEtiquetaFondo: "rgba(255, 255, 255, 0.10)",
   },
   oscuro: {
     primario: "#8B85FF",
@@ -74,6 +79,11 @@ export const colores = {
     codigoEliminado: "#FDA4AF",
     codigoEliminadoFondo: "rgba(255, 107, 133, 0.16)",
     codigoEncabezado: "#A29DFF",
+    // F12: la carpeta de la terminal, la etiqueta del lenguaje y el código de solo
+    // lectura; el cursor y el $ ("cursor brote"); y el fondo de la etiqueta
+    codigoTenue: "#A9A6C9",
+    codigoCursor: "#A3E635",
+    codigoEtiquetaFondo: "rgba(255, 255, 255, 0.10)",
   },
 } as const;
 
