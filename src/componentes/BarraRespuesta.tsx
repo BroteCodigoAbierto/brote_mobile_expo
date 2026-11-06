@@ -23,6 +23,8 @@ const ALTO_DETALLE = 0.35;
 type Props = {
   estado: EstadoRespuesta;
   titulo?: string;
+  // F12: un comando o el nombre de un commit, en letra de código, entre el título y el detalle
+  codigo?: string;
   detalle?: string;
   textoBoton: string;
   deshabilitado?: boolean;
@@ -35,6 +37,7 @@ type Props = {
 export default function BarraRespuesta({
   estado,
   titulo,
+  codigo,
   detalle,
   textoBoton,
   deshabilitado = false,
@@ -46,9 +49,11 @@ export default function BarraRespuesta({
   // accessibilityLiveRegion solo existe en Android; en iOS se anuncia a mano
   useEffect(() => {
     if (Platform.OS === "ios" && estado !== "neutro" && titulo) {
-      AccessibilityInfo.announceForAccessibility([titulo, detalle].filter(Boolean).join(" "));
+      AccessibilityInfo.announceForAccessibility(
+        [titulo, codigo, detalle].filter(Boolean).join(" "),
+      );
     }
-  }, [estado, titulo, detalle]);
+  }, [estado, titulo, codigo, detalle]);
 
   const fondo = { neutro: undefined, correcto: c.broteSuave, incorrecto: c.errorSuave }[estado];
   const colorTitulo = estado === "correcto" ? c.broteFuerte : c.error;
@@ -58,7 +63,7 @@ export default function BarraRespuesta({
     <Superficie tono="solido" elevada style={styles.barra}>
       {/* el color de la respuesta va encima del vidrio sólido */}
       <View style={[styles.relleno, fondo ? { backgroundColor: fondo } : null]}>
-        {(titulo || detalle) && (
+        {(titulo || codigo || detalle) && (
           <View style={styles.mensaje} accessibilityLiveRegion="polite">
             {titulo && (
               <View style={styles.titulo}>
@@ -68,9 +73,14 @@ export default function BarraRespuesta({
                 </Texto>
               </View>
             )}
-            {detalle && (
-              <ScrollView style={{ maxHeight: altoPantalla * ALTO_DETALLE }}>
-                <Texto>{detalle}</Texto>
+            {/* el código y el detalle se desplazan juntos, y "Continuar" sigue a la vista */}
+            {(codigo || detalle) && (
+              <ScrollView
+                style={{ maxHeight: altoPantalla * ALTO_DETALLE }}
+                contentContainerStyle={styles.desplazable}
+              >
+                {codigo ? <Texto variante="codigo">{codigo}</Texto> : null}
+                {detalle ? <Texto>{detalle}</Texto> : null}
               </ScrollView>
             )}
           </View>
@@ -93,6 +103,9 @@ const styles = StyleSheet.create({
   mensaje: {
     gap: espacio[2],
     paddingHorizontal: espacio[2],
+  },
+  desplazable: {
+    gap: espacio[2],
   },
   titulo: {
     flexDirection: "row",
