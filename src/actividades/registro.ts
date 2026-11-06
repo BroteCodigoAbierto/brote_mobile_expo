@@ -8,6 +8,7 @@ import OpcionMultiple from "./OpcionMultiple";
 import Ordenar from "./Ordenar";
 import PreguntaAbierta from "./PreguntaAbierta";
 import TarjetaMemoria from "./TarjetaMemoria";
+import TerminalSimulada from "./TerminalSimulada";
 import Teoria from "./Teoria";
 import type { PropsActividad } from "./tipos";
 
@@ -26,6 +27,7 @@ export const registroActividades: {
   clasificar: Clasificar,
   ordenar: Ordenar,
   bancoPalabras: BancoPalabras,
+  terminalSimulada: TerminalSimulada,
 };
 
 // Una versión vieja de la app puede recibir un tipo que todavía no conoce: se
