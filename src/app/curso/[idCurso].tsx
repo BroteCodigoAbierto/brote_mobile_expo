@@ -87,7 +87,12 @@ export default function DetalleCurso() {
         ) : null}
 
         <Superficie elevada style={styles.encabezado}>
-          <PortadaCurso id={curso.id} titulo={curso.titulo} tamano="detalle" />
+          <PortadaCurso
+            id={curso.id}
+            titulo={curso.titulo}
+            tamano="detalle"
+            idPortada={curso.idPortada}
+          />
           <View style={styles.datos}>
             <Texto variante="titulo2" accessibilityRole="header">
               {curso.titulo}
