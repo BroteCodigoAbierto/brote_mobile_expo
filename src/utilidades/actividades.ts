@@ -1,7 +1,10 @@
 import {
   MARCA_ESPACIO,
+  MARCA_IMAGEN,
   type ActividadCompletarEspacios,
+  type ContenidoElemento,
   type EspacioRespuesta,
+  type ImagenActividad,
   type OpcionRespuesta,
 } from "../tipos/contrato";
 
@@ -94,6 +97,60 @@ export function tipoLineaCodigo(linea: string): TipoLineaCodigo {
   return "normal";
 }
 
+// Una opción de imagen se nombra con su texto alternativo (F13); sin él, "".
 export function textoOpcion(opcion: OpcionRespuesta): string {
+  if ("imagen" in opcion) return opcion.imagen.textoAlternativo ?? "";
   return "simbolo" in opcion ? opcion.simbolo : opcion.texto;
+}
+
+// F13: el texto de una teoría en bloques. Primero en párrafos, como partirParrafos, y luego
+// cada párrafo en sus marcas [imagen]: una marca a la mitad de un párrafo lo parte en dos.
+// La n-ésima marca es imagenes[n] (brote_specs, research de F13, punto 8).
+export type BloqueTeoria = { parrafo: string } | { imagen: number };
+
+export function partirTeoria(texto: string): BloqueTeoria[] {
+  const bloques: BloqueTeoria[] = [];
+  let imagen = 0;
+  for (const parrafo of partirParrafos(texto)) {
+    // un párrafo sin marcas queda tal cual, como antes de F13
+    if (!parrafo.includes(MARCA_IMAGEN)) {
+      bloques.push({ parrafo });
+      continue;
+    }
+    parrafo.split(MARCA_IMAGEN).forEach((trozo, i) => {
+      if (i > 0) bloques.push({ imagen: imagen++ });
+      const limpio = trozo.trim();
+      if (limpio !== "") bloques.push({ parrafo: limpio });
+    });
+  }
+  return bloques;
+}
+
+// El nombre de un elemento de relacionar: su texto, su texto alternativo o "Imagen {n}"
+// (n, su lugar entre los mosaicos de la actividad al empezar; spec F13, "Lectores de
+// pantalla").
+export function nombreDeContenido(contenido: ContenidoElemento, lugar: number): string {
+  if (typeof contenido === "string") return contenido;
+  return contenido.textoAlternativo ?? `Imagen ${lugar}`;
+}
+
+// F13: una línea de "Respuesta correcta" se arma con partes de texto y de imagen; cada
+// imagen se ve como miniatura (research de F13, punto 14).
+export type ParteRespuesta = { texto: string } | { imagen: ImagenActividad };
+
+export type DetalleRespuesta = { detalle?: string; lineas?: ParteRespuesta[][] };
+
+export function parteDe(contenido: ContenidoElemento): ParteRespuesta {
+  return typeof contenido === "string" ? { texto: contenido } : { imagen: contenido };
+}
+
+// Sin imágenes, el `detalle` de texto de siempre, carácter por carácter, así F03 y F11 no
+// cambian; con alguna, las `lineas`.
+export function aDetalleRespuesta(lineas: ParteRespuesta[][]): DetalleRespuesta {
+  const soloTexto = lineas.every((linea) => linea.every((parte) => "texto" in parte));
+  if (!soloTexto) return { lineas };
+  const texto = lineas
+    .map((linea) => linea.map((parte) => ("texto" in parte ? parte.texto : "")).join(""))
+    .join("\n");
+  return texto === "" ? {} : { detalle: texto };
 }

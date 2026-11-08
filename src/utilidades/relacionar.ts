@@ -4,7 +4,13 @@ import type {
   ActividadEmparejar,
   ActividadOrdenar,
 } from "../tipos/contrato";
-import { mezclar, partirEnEspacios } from "./actividades";
+import {
+  aDetalleRespuesta,
+  mezclar,
+  parteDe,
+  partirEnEspacios,
+  type DetalleRespuesta,
+} from "./actividades";
 
 // Reglas de las actividades de relacionar (spec F11; brote_specs, research de F11, puntos
 // 1, 5 y 6). Son funciones puras: pulsar y soltar solo traducen un gesto a una de ellas,
@@ -91,15 +97,19 @@ export function esParejaCorrecta({ izquierda, derecha }: Pareja): boolean {
   return izquierda === derecha;
 }
 
-// La respuesta correcta de las parejas falladas, en el orden del autor.
-export function detalleParejas({ parejas }: ActividadEmparejar, formadas: Pareja[]): string {
-  return parejas
+// La respuesta correcta de las parejas falladas, en el orden del autor. Una imagen va como
+// miniatura (F13).
+export function detalleParejas(
+  { parejas }: ActividadEmparejar,
+  formadas: Pareja[],
+): DetalleRespuesta {
+  const lineas = parejas
     .filter((_, indice) => {
       const pareja = parejaDe(formadas, { lado: "izquierda", indice });
       return !pareja || !esParejaCorrecta(pareja);
     })
-    .map(({ izquierda, derecha }) => `${izquierda} → ${derecha}`)
-    .join("\n");
+    .map(({ izquierda, derecha }) => [parteDe(izquierda), { texto: " → " }, parteDe(derecha)]);
+  return aDetalleRespuesta(lineas);
 }
 
 // --- Clasificar -------------------------------------------------------------
@@ -151,11 +161,14 @@ export function soltarEnClasificar(
 export function detalleClasificar(
   { categorias, elementos }: ActividadClasificar,
   categoriaDe: (number | null)[],
-): string {
-  return elementos
+): DetalleRespuesta {
+  const lineas = elementos
     .filter(({ categoria }, indice) => categoriaDe[indice] !== categoria)
-    .map(({ texto, categoria }) => `${texto} → ${categorias[categoria] ?? ""}`)
-    .join("\n");
+    .map((elemento) => [
+      "imagen" in elemento ? parteDe(elemento.imagen) : parteDe(elemento.texto),
+      { texto: ` → ${categorias[elemento.categoria] ?? ""}` },
+    ]);
+  return aDetalleRespuesta(lineas);
 }
 
 // --- Ordenar y banco de palabras --------------------------------------------
@@ -216,8 +229,10 @@ export function mezclarSinResolver(total: number): number[] {
   return mezclados;
 }
 
-export function detalleOrdenar({ elementos }: ActividadOrdenar): string {
-  return elementos.map((elemento, indice) => `${indice + 1}. ${elemento}`).join("\n");
+export function detalleOrdenar({ elementos }: ActividadOrdenar): DetalleRespuesta {
+  return aDetalleRespuesta(
+    elementos.map((elemento, indice) => [{ texto: `${indice + 1}. ` }, parteDe(elemento)]),
+  );
 }
 
 // --- Banco de palabras ------------------------------------------------------
