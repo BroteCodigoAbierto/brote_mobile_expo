@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ComponentRef, type RefOb
 import type { NativeScrollEvent, NativeSyntheticEvent, ScrollView, View } from "react-native";
 import { useSharedValue, type SharedValue } from "react-native-reanimated";
 import type { FormaElemento } from "../../componentes/ElementoRespuesta";
+import type { ImagenActividad } from "../../tipos/contrato";
 
 // A esta distancia del borde de lo visible, la pantalla se desplaza sola.
 const BORDE_DESPLAZAR = 72;
@@ -17,7 +18,8 @@ type Desplazable = ComponentRef<typeof ScrollView>;
 
 type Rectangulo = { x: number; y: number; ancho: number; alto: number };
 
-export type DatosCopia = { texto: string; forma: FormaElemento };
+// con imagen (F13), la copia es su mosaico, quieto
+export type DatosCopia = { texto: string; forma: FormaElemento; imagen?: ImagenActividad };
 
 export type CopiaArrastre = DatosCopia & { ancho: number };
 

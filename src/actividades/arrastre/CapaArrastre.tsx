@@ -31,6 +31,9 @@ export default function CapaArrastre({ arrastre }: Props) {
         <Animated.View style={[styles.copia, { width: copia.ancho }, estiloPosicion]}>
           <ElementoRespuesta
             texto={copia.texto}
+            imagen={copia.imagen}
+            llenar
+            quieta
             forma={copia.forma}
             estado="seleccionada"
             etiqueta={copia.texto}
