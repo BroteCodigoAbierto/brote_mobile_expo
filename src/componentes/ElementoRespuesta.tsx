@@ -1,5 +1,5 @@
 import { CircleCheck, CircleX } from "lucide-react-native";
-import { useEffect } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -8,15 +8,28 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { espacio, fuentes, radio } from "../constantes/tema";
+import { espacio, fuentes, medidasImagen, radio } from "../constantes/tema";
 import { useColores, useSombras } from "../hooks/useColores";
+import type { ImagenActividad } from "../tipos/contrato";
+import MosaicoImagen from "./MosaicoImagen";
 import type { EstadoOpcion } from "./OpcionRespuesta";
 import Texto from "./Texto";
 
-export type FormaElemento = "tarjeta" | "compacta";
+// "mosaico" (F13): un elemento de imagen
+export type FormaElemento = "tarjeta" | "compacta" | "mosaico";
+
+// Si el GIF de un elemento está en pausa. Lo da Arrastrable, que pone el BotonPausa fuera de
+// su gesto para que pulsarlo no empiece a arrastrar (F13).
+export const ContextoPausaElemento = createContext(false);
 
 type Props = {
-  texto: string;
+  texto?: string;
+  // F13: un elemento de imagen, en forma "mosaico"
+  imagen?: ImagenActividad;
+  // F13: el mosaico toma el ancho de su contenedor (las columnas de emparejar)
+  llenar?: boolean;
+  // F13: un GIF quieto, como en la copia que sigue al dedo
+  quieta?: boolean;
   estado?: EstadoOpcion;
   forma?: FormaElemento;
   // el número que se ve en los dos elementos de una pareja
@@ -33,9 +46,13 @@ type Props = {
 
 // Elemento que se mueve o se une en las actividades de relacionar (docs/diseno.md, sección
 // 4): el aspecto de OpcionRespuesta, pero es un botón y no un radio, y lleva número. Arrastrar
-// lo pone Arrastrable, por fuera: aquí solo se pulsa, también con un lector de pantalla.
+// lo pone Arrastrable, por fuera: aquí solo se pulsa, también con un lector de pantalla. Con
+// imagen (F13), un mosaico con la marca y el icono como insignias.
 export default function ElementoRespuesta({
   texto,
+  imagen,
+  llenar = false,
+  quieta = false,
   estado = "normal",
   forma = "tarjeta",
   marca,
@@ -49,6 +66,7 @@ export default function ElementoRespuesta({
   const s = useSombras();
   const reducirMovimiento = useReducedMotion();
   const desplazamiento = useSharedValue(0);
+  const pausada = useContext(ContextoPausaElemento);
 
   useEffect(() => {
     if (estado !== "incorrecta" || reducirMovimiento) return;
@@ -93,6 +111,7 @@ export default function ElementoRespuesta({
         accessibilityState={{ selected: estado === "seleccionada", disabled: deshabilitada }}
         style={({ pressed }) => [
           styles.elemento,
+          imagen ? (llenar ? styles.mosaicoLleno : styles.mosaico) : null,
           // debajo del color del elemento, el vidrio opaco
           { borderColor: borde, backgroundColor: c.vidrioOpaco, boxShadow: aspecto.sombra },
           pressed && !deshabilitada && styles.presionada,
@@ -101,11 +120,34 @@ export default function ElementoRespuesta({
         <View
           style={[
             styles.relleno,
-            forma === "compacta" ? styles.compacta : styles.tarjeta,
+            imagen
+              ? styles.rellenoMosaico
+              : forma === "compacta"
+                ? styles.compacta
+                : styles.tarjeta,
             { backgroundColor: fondo },
           ]}
         >
-          {marca !== undefined && (
+          {imagen && (
+            <>
+              <MosaicoImagen imagen={imagen} quieta={quieta} pausada={pausada} />
+              {marca !== undefined && (
+                <View
+                  style={[styles.marca, styles.marcaMosaico, { backgroundColor: c.primarioSuave }]}
+                >
+                  <Texto variante="etiqueta" color="primario">
+                    {marca}
+                  </Texto>
+                </View>
+              )}
+              {icono && (
+                <View style={[styles.iconoMosaico, { backgroundColor: c.vidrioOpaco }]}>
+                  {icono(22)}
+                </View>
+              )}
+            </>
+          )}
+          {!imagen && marca !== undefined && (
             <View style={[styles.marca, { backgroundColor: c.primarioSuave }]}>
               <Texto variante="etiqueta" color="primario">
                 {marca}
@@ -119,8 +161,8 @@ export default function ElementoRespuesta({
               )}
             </View>
           )}
-          <Texto style={styles.texto}>{texto}</Texto>
-          {marca === undefined && icono && <View style={styles.icono}>{icono(22)}</View>}
+          {!imagen && <Texto style={styles.texto}>{texto}</Texto>}
+          {!imagen && marca === undefined && icono && <View style={styles.icono}>{icono(22)}</View>}
         </View>
       </Pressable>
     </Animated.View>
@@ -181,5 +223,33 @@ const styles = StyleSheet.create({
   // al borde, como en OpcionRespuesta
   icono: {
     marginLeft: "auto",
+  },
+  // F13: el mosaico de un elemento de imagen, cuadrado
+  mosaico: {
+    width: medidasImagen.mosaicoElemento,
+    height: medidasImagen.mosaicoElemento,
+  },
+  mosaicoLleno: {
+    width: "100%",
+    aspectRatio: 1,
+  },
+  rellenoMosaico: {
+    flex: 1,
+    minHeight: 0,
+    paddingHorizontal: espacio[1],
+    paddingVertical: espacio[1],
+  },
+  marcaMosaico: {
+    position: "absolute",
+    top: espacio[2],
+    left: espacio[2],
+    zIndex: 1,
+  },
+  iconoMosaico: {
+    position: "absolute",
+    top: espacio[2],
+    right: espacio[2],
+    zIndex: 1,
+    borderRadius: radio.pildora,
   },
 });

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
-import { espacio, fuentes, radio } from "../constantes/tema";
+import { espacio, fuentes, medidasImagen, radio } from "../constantes/tema";
 import { useColores } from "../hooks/useColores";
 import type { EstadoEspacio } from "./CampoEspacio";
 import Texto from "./Texto";
@@ -10,6 +10,8 @@ type Props = {
   numero?: number;
   // espacio del banco, dentro del texto
   enLinea?: boolean;
+  // F13: el lugar de un elemento de imagen, del tamaño de un mosaico
+  mosaico?: boolean;
   estado?: EstadoEspacio;
   // la ficha esperada, que se muestra al lado si es incorrecto
   esperada?: string;
@@ -25,6 +27,7 @@ type Props = {
 export default function LugarElemento({
   numero,
   enLinea = false,
+  mosaico = false,
   estado = "normal",
   esperada,
   resaltado = false,
@@ -47,6 +50,7 @@ export default function LugarElemento({
         accessibilityLabel={vacio ? etiqueta : undefined}
         style={[
           enLinea ? styles.huecoEnLinea : styles.hueco,
+          mosaico && styles.huecoMosaico,
           vacio ? [styles.vacio, { borderColor: c.bordeFuerte }] : styles.lleno,
           resaltado && { borderColor: c.primario, backgroundColor: c.primarioSuave },
         ]}
@@ -91,6 +95,13 @@ const styles = StyleSheet.create({
     minHeight: 56,
     borderRadius: radio.medio,
     borderCurve: "continuous",
+  },
+  // F13: el mosaico y los 2 px de borde de cada lado
+  huecoMosaico: {
+    flex: 0,
+    width: medidasImagen.mosaicoElemento + 4,
+    height: medidasImagen.mosaicoElemento + 4,
+    minHeight: 0,
   },
   huecoEnLinea: {
     flexShrink: 1,
