@@ -147,7 +147,12 @@ function CursarLeccion({ idCurso, idLeccion, leccion, actividades, alSalir }: Pr
 
   return (
     <Marco>
-      <ReproductorLeccion actividades={actividades} reproductor={reproductor} alSalir={alSalir} />
+      <ReproductorLeccion
+        actividades={actividades}
+        idioma={leccion.idioma}
+        reproductor={reproductor}
+        alSalir={alSalir}
+      />
     </Marco>
   );
 }

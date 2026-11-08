@@ -4,6 +4,7 @@ import BancoPalabras from "./BancoPalabras";
 import Clasificar from "./Clasificar";
 import CompletarEspacios from "./CompletarEspacios";
 import Emparejar from "./Emparejar";
+import EscucharRepetir from "./EscucharRepetir";
 import GrafoCommits from "./GrafoCommits";
 import OpcionMultiple from "./OpcionMultiple";
 import Ordenar from "./Ordenar";
@@ -32,6 +33,7 @@ export const registroActividades: {
   retoCodigo: RetoCodigo,
   terminalSimulada: TerminalSimulada,
   grafoCommits: GrafoCommits,
+  escucharRepetir: EscucharRepetir,
 };
 
 // Una versión vieja de la app puede recibir un tipo que todavía no conoce: se
