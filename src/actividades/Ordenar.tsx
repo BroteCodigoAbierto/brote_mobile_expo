@@ -6,6 +6,8 @@ import LugarElemento from "../componentes/LugarElemento";
 import Texto from "../componentes/Texto";
 import ZonaElementos from "../componentes/ZonaElementos";
 import { espacio } from "../constantes/tema";
+import { nombreDeContenido } from "../utilidades/actividades";
+import { esImagen } from "../utilidades/imagenes";
 import {
   colocarEnPrimerLibre,
   detalleOrdenar,
@@ -24,7 +26,8 @@ import MarcoActividad from "./MarcoActividad";
 import type { PropsActividad } from "./tipos";
 
 // Ordenar (spec F11): se llenan los lugares numerados, pulsando cada elemento o arrastrándolo a
-// un lugar en concreto. Se acierta solo si todos quedan en su lugar.
+// un lugar en concreto. Se acierta solo si todos quedan en su lugar. Desde F13, los elementos
+// pueden ser imágenes: mosaicos, y los lugares miden lo que un mosaico.
 export default function Ordenar({
   actividad,
   alInteractuar,
@@ -36,6 +39,12 @@ export default function Ordenar({
   const [comprobada, setComprobada] = useState(false);
   const completa = primerLibre(lugares) === -1;
   const acerto = lugares.every((elemento, lugar) => elemento === lugar);
+  // F13: los elementos son todos textos o todos imágenes; "Imagen {n}" por su lugar al empezar
+  const conImagenes = elementos.some(esImagen);
+
+  function textoDe(elemento: number): string {
+    return nombreDeContenido(elementos[elemento] ?? "", orden.indexOf(elemento) + 1);
+  }
 
   const arrastre = useArrastrarElemento<number, number | typeof SIN_COLOCAR>({
     alSoltar: (item, destino) => cambiar(soltarEnLugares(lugares, item, destino), item),
@@ -43,7 +52,7 @@ export default function Ordenar({
 
   function cambiar(nuevos: Lugares, elemento: number) {
     const lugar = nuevos.indexOf(elemento);
-    const texto = elementos[elemento] ?? "";
+    const texto = textoDe(elemento);
     setLugares(nuevos);
     alInteractuar();
     AccessibilityInfo.announceForAccessibility(
@@ -61,7 +70,9 @@ export default function Ordenar({
   }
 
   function dibujar(elemento: number, lugar: number | null) {
-    const texto = elementos[elemento] ?? "";
+    const texto = textoDe(elemento);
+    const contenido = elementos[elemento] ?? "";
+    const imagen = esImagen(contenido) ? contenido : undefined;
     const correcto = elemento === lugar;
     const partes = [
       texto,
@@ -74,11 +85,12 @@ export default function Ordenar({
         arrastre={arrastre}
         item={elemento}
         texto={texto}
-        forma="tarjeta"
+        forma={imagen ? "mosaico" : "tarjeta"}
+        imagen={imagen}
         deshabilitado={comprobada}
       >
         <ElementoRespuesta
-          texto={texto}
+          {...(imagen ? { imagen, forma: "mosaico" as const } : { texto })}
           estado={comprobada ? (correcto ? "correcta" : "incorrecta") : "normal"}
           atenuada={arrastre.item === elemento}
           deshabilitada={comprobada}
@@ -93,7 +105,7 @@ export default function Ordenar({
     <BarraRespuesta
       estado={acerto ? "correcto" : "incorrecto"}
       titulo={acerto ? "¡Correcto!" : "Respuesta correcta:"}
-      detalle={acerto ? undefined : detalleOrdenar(actividad)}
+      {...(acerto ? {} : detalleOrdenar(actividad))}
       textoBoton="Continuar"
       alPulsar={() => alTerminar(acerto ? "acierto" : "fallo")}
     />
@@ -116,6 +128,7 @@ export default function Ordenar({
           <DestinoArrastre key={lugar} arrastre={arrastre} destino={lugar}>
             <LugarElemento
               numero={lugar + 1}
+              mosaico={conImagenes}
               estado={comprobada ? (elemento === lugar ? "correcto" : "incorrecto") : "normal"}
               resaltado={arrastre.destino === lugar}
               etiqueta={`Lugar ${lugar + 1}, vacío`}
