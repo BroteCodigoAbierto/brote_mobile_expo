@@ -14,6 +14,8 @@ type Props = {
   deshabilitado?: boolean;
   // mientras se envía queda deshabilitado, para que no se envíe dos veces
   enviando?: boolean;
+  // F14: el nombre accesible, cuando el título no basta ("Escuchar" → "Escuchar la frase")
+  etiqueta?: string;
 };
 
 // Botón de píldora (docs/diseno.md, sección 4): presionado se encoge un poco.
@@ -26,6 +28,7 @@ export default function Boton({
   iconoFinal: IconoFinal,
   deshabilitado = false,
   enviando = false,
+  etiqueta,
 }: Props) {
   const c = useColores();
   const s = useSombras();
@@ -55,7 +58,7 @@ export default function Boton({
       onPress={alPresionar}
       disabled={inactivo}
       accessibilityRole="button"
-      accessibilityLabel={titulo}
+      accessibilityLabel={etiqueta ?? titulo}
       accessibilityState={{ disabled: inactivo, busy: enviando }}
       style={({ pressed }) => [
         styles.boton,
