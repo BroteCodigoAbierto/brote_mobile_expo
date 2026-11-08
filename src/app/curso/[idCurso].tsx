@@ -27,7 +27,7 @@ import { useColores } from "../../hooks/useColores";
 import { usePeticion } from "../../hooks/usePeticion";
 import { useRecargarAlVolver } from "../../hooks/useRecargarAlVolver";
 import { esNoDisponible, leerErrorDeCarga, traerCurso } from "../../servicios/cursos";
-import { MENSAJES_CATALOGO, type DetalleCurso as Curso } from "../../tipos/contrato";
+import { MENSAJES_CATALOGO, NOMBRE_IDIOMA, type DetalleCurso as Curso } from "../../tipos/contrato";
 import { textoCantidadLecciones } from "../../utilidades/cursos";
 import { avanceCurso, textoAciertos, textoBotonSiguiente } from "../../utilidades/progreso";
 
@@ -99,6 +99,10 @@ export default function DetalleCurso() {
             </Texto>
             <Texto variante="cuerpoChico" color="primario" style={styles.autor}>
               Por {curso.autor.nombre}
+            </Texto>
+            {/* F14: el de la voz de escuchar y repetir */}
+            <Texto variante="nota" color="textoSuave">
+              Idioma: {NOMBRE_IDIOMA[curso.idioma]}
             </Texto>
             <Insignia
               tono="primario"
