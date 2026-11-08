@@ -6,6 +6,8 @@ import type { EstadoOpcion } from "../componentes/OpcionRespuesta";
 import Texto from "../componentes/Texto";
 import { espacio } from "../constantes/tema";
 import { CONSIGNA_POR_DEFECTO } from "../tipos/contrato";
+import { nombreDeContenido } from "../utilidades/actividades";
+import { esImagen } from "../utilidades/imagenes";
 import {
   claveDe,
   detalleParejas,
@@ -26,7 +28,8 @@ import MarcoActividad from "./MarcoActividad";
 import type { PropsActividad } from "./tipos";
 
 // Emparejar (spec F11): dos columnas, y cada elemento de la izquierda se une con uno de la
-// derecha, pulsando o arrastrando. Se acierta solo si todas las parejas son correctas.
+// derecha, pulsando o arrastrando. Se acierta solo si todas las parejas son correctas. Desde
+// F13, una columna puede ser de imágenes: mosaicos del ancho de la columna.
 export default function Emparejar({
   actividad,
   alInteractuar,
@@ -49,8 +52,22 @@ export default function Emparejar({
     },
   });
 
-  function textoDe({ lado, indice }: ElementoPareja): string {
-    return parejas[indice]?.[lado] ?? "";
+  // "Imagen {n}": su lugar entre los mosaicos al empezar, primero la columna izquierda
+  const lugaresDeImagen = new Map(
+    [
+      ...parejas.map((_, indice) => ({ lado: "izquierda" as const, indice })),
+      ...ordenDerecha.map((indice) => ({ lado: "derecha" as const, indice })),
+    ]
+      .filter(({ lado, indice }) => {
+        const contenido = parejas[indice]?.[lado];
+        return contenido !== undefined && esImagen(contenido);
+      })
+      .map((elemento, i) => [claveDe(elemento), i + 1]),
+  );
+
+  function textoDe(elemento: ElementoPareja): string {
+    const contenido = parejas[elemento.indice]?.[elemento.lado] ?? "";
+    return nombreDeContenido(contenido, lugaresDeImagen.get(claveDe(elemento)) ?? 0);
   }
 
   function anuncioDe(nuevo: EstadoEmparejar, elemento: ElementoPareja): string {
@@ -101,17 +118,20 @@ export default function Emparejar({
     const elemento = { lado, indice };
     const clave = claveDe(elemento);
     const texto = textoDe(elemento);
+    const contenido = parejas[indice]?.[lado] ?? "";
+    const imagen = esImagen(contenido) ? contenido : undefined;
     return (
       <DestinoArrastre key={clave} arrastre={arrastre} destino={clave}>
         <Arrastrable
           arrastre={arrastre}
           item={clave}
           texto={texto}
-          forma="tarjeta"
+          forma={imagen ? "mosaico" : "tarjeta"}
+          imagen={imagen}
           deshabilitado={comprobada}
         >
           <ElementoRespuesta
-            texto={texto}
+            {...(imagen ? { imagen, forma: "mosaico" as const, llenar: true } : { texto })}
             estado={estadoDe(elemento)}
             marca={parejaDe(formadas, elemento)?.numero}
             atenuada={arrastre.item === clave}
@@ -129,7 +149,7 @@ export default function Emparejar({
     <BarraRespuesta
       estado={acerto ? "correcto" : "incorrecto"}
       titulo={acerto ? "¡Correcto!" : "Respuesta correcta:"}
-      detalle={acerto ? undefined : detalleParejas(actividad, formadas)}
+      {...(acerto ? {} : detalleParejas(actividad, formadas))}
       textoBoton="Continuar"
       alPulsar={() => alTerminar(acerto ? "acierto" : "fallo")}
     />
