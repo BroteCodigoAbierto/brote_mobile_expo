@@ -43,6 +43,8 @@ export default function PortadaCurso({ id, titulo, tamano, idPortada }: Props) {
           ajuste="cubrir"
           llenar
           alFallar={() => setFallo(idPortada)}
+          // mientras carga, se ve el color sin la inicial
+          style={styles.imagen}
         />
       ) : (
         <Text style={[styles.inicial, esDetalle ? styles.inicialDetalle : styles.inicialTarjeta]}>
@@ -59,6 +61,9 @@ function imagenDePortada(id: string): Imagen {
 }
 
 const styles = StyleSheet.create({
+  imagen: {
+    backgroundColor: "transparent",
+  },
   portada: {
     alignItems: "center",
     justifyContent: "center",
