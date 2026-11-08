@@ -7,7 +7,7 @@ import Texto from "../componentes/Texto";
 import ZonaElementos from "../componentes/ZonaElementos";
 import { espacio } from "../constantes/tema";
 import { CONSIGNA_POR_DEFECTO } from "../tipos/contrato";
-import { mezclar } from "../utilidades/actividades";
+import { mezclar, nombreDeContenido } from "../utilidades/actividades";
 import {
   detalleClasificar,
   pulsarCategoria,
@@ -23,7 +23,8 @@ import MarcoActividad from "./MarcoActividad";
 import type { PropsActividad } from "./tipos";
 
 // Clasificar (spec F11): cada elemento va en una categoría, pulsando o arrastrando. Se acierta
-// solo si todos están en la suya.
+// solo si todos están en la suya. Desde F13, los elementos pueden ser imágenes: mosaicos en
+// filas que se acomodan solas.
 export default function Clasificar({
   actividad,
   alInteractuar,
@@ -46,8 +47,12 @@ export default function Clasificar({
       cambiar({ categoriaDe: soltarEnClasificar(categoriaDe, item, destino), seleccion: null }),
   });
 
+  // F13: los elementos son todos textos o todos imágenes; "Imagen {n}" por su lugar al empezar
   function textoDe(indice: number): string {
-    return elementos[indice]?.texto ?? "";
+    const elemento = elementos[indice];
+    if (!elemento) return "";
+    if ("texto" in elemento) return elemento.texto;
+    return nombreDeContenido(elemento.imagen, orden.indexOf(indice) + 1);
   }
 
   function anuncioDe(nuevo: EstadoClasificar): string {
@@ -94,18 +99,22 @@ export default function Clasificar({
 
   function dibujar(indice: number) {
     const texto = textoDe(indice);
+    const elemento = elementos[indice];
+    const imagen = elemento && "imagen" in elemento ? elemento.imagen : undefined;
     return (
       <Arrastrable
         key={indice}
         arrastre={arrastre}
         item={indice}
         texto={texto}
-        forma="compacta"
+        forma={imagen ? "mosaico" : "compacta"}
+        imagen={imagen}
         deshabilitado={comprobada}
       >
         <ElementoRespuesta
-          texto={texto}
-          forma="compacta"
+          {...(imagen
+            ? { imagen, forma: "mosaico" as const }
+            : { texto, forma: "compacta" as const })}
           estado={estadoDe(indice)}
           atenuada={arrastre.item === indice}
           deshabilitada={comprobada}
@@ -120,7 +129,7 @@ export default function Clasificar({
     <BarraRespuesta
       estado={acerto ? "correcto" : "incorrecto"}
       titulo={acerto ? "¡Correcto!" : "Respuesta correcta:"}
-      detalle={acerto ? undefined : detalleClasificar(actividad, categoriaDe)}
+      {...(acerto ? {} : detalleClasificar(actividad, categoriaDe))}
       textoBoton="Continuar"
       alPulsar={() => alTerminar(acerto ? "acierto" : "fallo")}
     />
