@@ -9,7 +9,7 @@ import { CALIFICA_ACTIVIDAD, type Actividad } from "../tipos/contrato";
 type EstadoReproductor = {
   indice: number; // actividad actual; igual a total cuando terminó
   resultados: ResultadoActividad[];
-  // ya hizo algo: pasó de la primera actividad o eligió, escribió o volteó algo
+  // ya hizo algo: pasó de la primera actividad o eligió, escribió, volteó, colocó o unió algo
   hizoAlgo: boolean;
 };
 
