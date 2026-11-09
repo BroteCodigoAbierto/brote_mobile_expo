@@ -73,6 +73,15 @@ async function hayConexion(): Promise<boolean> {
   }
 }
 
+// Las cabeceras de la sesión del móvil, también para expo-image (F13): el token y que es el
+// móvil, para que la API no mande una cookie.
+export function cabecerasSesion(): Record<string, string> {
+  return {
+    [CABECERA_CLIENTE.nombre]: CABECERA_CLIENTE.movil,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
   const control = new AbortController();
   const temporizador = setTimeout(() => control.abort(), ESPERA_MAXIMA_MS);
@@ -84,8 +93,7 @@ export async function pedir<T>(ruta: string, opciones: RequestInit = {}): Promis
       headers: {
         "Content-Type": "application/json",
         // el móvil recibe la sesión como token y no como cookie (F01)
-        [CABECERA_CLIENTE.nombre]: CABECERA_CLIENTE.movil,
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...cabecerasSesion(),
         ...opciones.headers,
       },
     });

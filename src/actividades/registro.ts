@@ -1,9 +1,17 @@
 import type { ComponentType } from "react";
 import type { Actividad, TipoActividad } from "../tipos/contrato";
+import BancoPalabras from "./BancoPalabras";
+import Clasificar from "./Clasificar";
 import CompletarEspacios from "./CompletarEspacios";
+import Emparejar from "./Emparejar";
+import EscucharRepetir from "./EscucharRepetir";
+import GrafoCommits from "./GrafoCommits";
 import OpcionMultiple from "./OpcionMultiple";
+import Ordenar from "./Ordenar";
 import PreguntaAbierta from "./PreguntaAbierta";
+import RetoCodigo from "./RetoCodigo";
 import TarjetaMemoria from "./TarjetaMemoria";
+import TerminalSimulada from "./TerminalSimulada";
 import Teoria from "./Teoria";
 import type { PropsActividad } from "./tipos";
 
@@ -18,6 +26,14 @@ export const registroActividades: {
   opcionMultiple: OpcionMultiple,
   completarEspacios: CompletarEspacios,
   preguntaAbierta: PreguntaAbierta,
+  emparejar: Emparejar,
+  clasificar: Clasificar,
+  ordenar: Ordenar,
+  bancoPalabras: BancoPalabras,
+  retoCodigo: RetoCodigo,
+  terminalSimulada: TerminalSimulada,
+  grafoCommits: GrafoCommits,
+  escucharRepetir: EscucharRepetir,
 };
 
 // Una versión vieja de la app puede recibir un tipo que todavía no conoce: se

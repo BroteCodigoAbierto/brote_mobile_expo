@@ -2,19 +2,21 @@ import { Check } from "lucide-react-native";
 import { StyleSheet, View } from "react-native";
 import BarraRespuesta from "../componentes/BarraRespuesta";
 import BloqueCodigo from "../componentes/BloqueCodigo";
+import ImagenAmpliable from "../componentes/ImagenAmpliable";
 import Superficie from "../componentes/Superficie";
 import Texto from "../componentes/Texto";
 import { espacio, radio } from "../constantes/tema";
 import { useColores } from "../hooks/useColores";
-import { partirParrafos } from "../utilidades/actividades";
+import { partirTeoria } from "../utilidades/actividades";
 import MarcoActividad from "./MarcoActividad";
 import type { PropsActividad } from "./tipos";
 
 // Teoría (spec F03): título, párrafos, código y puntos clave, solo los que
-// tenga y en ese orden. "Continuar" está disponible desde el principio.
+// tenga y en ese orden. "Continuar" está disponible desde el principio. Desde F13, cada
+// [imagen] del texto es una imagen, entre párrafos.
 export default function Teoria({ actividad, alTerminar }: PropsActividad<"teoria">) {
   const c = useColores();
-  const { titulo, texto, codigo, puntosClave } = actividad;
+  const { titulo, texto, codigo, puntosClave, imagenes = [] } = actividad;
 
   return (
     <MarcoActividad
@@ -32,9 +34,11 @@ export default function Teoria({ actividad, alTerminar }: PropsActividad<"teoria
             {titulo}
           </Texto>
         )}
-        {partirParrafos(texto).map((parrafo, i) => (
-          <Texto key={i}>{parrafo}</Texto>
-        ))}
+        {partirTeoria(texto).map((bloque, i) => {
+          if ("parrafo" in bloque) return <Texto key={i}>{bloque.parrafo}</Texto>;
+          const imagen = imagenes[bloque.imagen];
+          return imagen ? <ImagenAmpliable key={i} imagen={imagen} /> : null;
+        })}
         {codigo && <BloqueCodigo codigo={codigo} />}
         {puntosClave && (
           <View style={[styles.puntos, { backgroundColor: c.vidrioSuave }]}>

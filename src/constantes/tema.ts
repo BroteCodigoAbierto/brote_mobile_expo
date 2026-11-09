@@ -28,6 +28,8 @@ export const colores = {
     vidrioSuave: "rgba(238, 240, 255, 0.66)",
     vidrioOpaco: "#FCFCFF",
     vidrioBorde: "rgba(255, 255, 255, 0.90)",
+    // F13: el fondo del visor de una imagen, igual en los dos modos
+    fondoVisor: "rgba(10, 9, 26, 0.94)",
     // F03: final del degradado de la barra de progreso (empieza en brote)
     progresoFin: "#84CC16",
     // F03: el panel de código es oscuro también en modo claro: mismos valores
@@ -39,6 +41,11 @@ export const colores = {
     codigoEliminado: "#FDA4AF",
     codigoEliminadoFondo: "rgba(255, 107, 133, 0.16)",
     codigoEncabezado: "#A29DFF",
+    // F12: la carpeta de la terminal, la etiqueta del lenguaje y el código de solo
+    // lectura; el cursor y el $ ("cursor brote"); y el fondo de la etiqueta
+    codigoTenue: "#A9A6C9",
+    codigoCursor: "#A3E635",
+    codigoEtiquetaFondo: "rgba(255, 255, 255, 0.10)",
   },
   oscuro: {
     primario: "#8B85FF",
@@ -63,6 +70,7 @@ export const colores = {
     vidrioSuave: "rgba(46, 42, 92, 0.55)",
     vidrioOpaco: "#1B1A33",
     vidrioBorde: "rgba(255, 255, 255, 0.10)",
+    fondoVisor: "rgba(10, 9, 26, 0.94)",
     // F03: final del degradado de la barra de progreso (empieza en brote)
     progresoFin: "#84CC16",
     // F03: el panel de código es oscuro también en modo claro: mismos valores
@@ -74,6 +82,11 @@ export const colores = {
     codigoEliminado: "#FDA4AF",
     codigoEliminadoFondo: "rgba(255, 107, 133, 0.16)",
     codigoEncabezado: "#A29DFF",
+    // F12: la carpeta de la terminal, la etiqueta del lenguaje y el código de solo
+    // lectura; el cursor y el $ ("cursor brote"); y el fondo de la etiqueta
+    codigoTenue: "#A9A6C9",
+    codigoCursor: "#A3E635",
+    codigoEtiquetaFondo: "rgba(255, 255, 255, 0.10)",
   },
 } as const;
 
@@ -204,3 +217,14 @@ export const ALTO_BOTON = 52;
 export const ALTO_BOTON_CHICO = 44;
 // margen lateral de cada pantalla
 export const MARGEN_PANTALLA = espacio[6];
+
+// F13: imágenes (docs/diseno.md, sección 2.3). Opciones de imagen: tantas columnas de al
+// menos `mosaicoOpcion` como quepan, y nunca menos de dos; clasificar y ordenar, mosaicos de
+// `mosaicoElemento`; la barra, miniaturas de `miniatura`; y la teoría y la pregunta, hasta
+// `altoImagenMax` del alto de la pantalla.
+export const medidasImagen = {
+  mosaicoOpcion: 144,
+  mosaicoElemento: 88,
+  miniatura: 48,
+  altoImagenMax: 0.5,
+} as const;

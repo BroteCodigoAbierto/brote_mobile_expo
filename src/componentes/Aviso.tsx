@@ -1,4 +1,5 @@
 import { CircleAlert, CircleCheck, Info, Sparkles, type LucideIcon } from "lucide-react-native";
+import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { espacio, fuentes, radio } from "../constantes/tema";
 import { useColores } from "../hooks/useColores";
@@ -9,6 +10,8 @@ type Tono = "info" | "exito" | "error" | "calido";
 type Props = {
   texto: string;
   tono?: Tono;
+  // F14: lo que va debajo del texto, como "Abrir ajustes"
+  accion?: ReactNode;
 };
 
 const ICONOS: Record<Tono, LucideIcon> = {
@@ -20,8 +23,8 @@ const ICONOS: Record<Tono, LucideIcon> = {
 
 // Mensaje general de un formulario o de una pantalla: un error que no es de
 // un campo ("Correo o contraseña incorrectos.") o un aviso ("Tu sesión
-// terminó..."). Se anuncia en cuanto aparece.
-export default function Aviso({ texto, tono = "error" }: Props) {
+// terminó..."). Se anuncia en cuanto aparece. El texto respeta sus saltos de línea.
+export default function Aviso({ texto, tono = "error", accion }: Props) {
   const c = useColores();
   const Icono = ICONOS[tono];
   const aspecto = {
@@ -38,9 +41,12 @@ export default function Aviso({ texto, tono = "error" }: Props) {
       accessibilityLiveRegion="polite"
     >
       <Icono size={20} color={aspecto.icono} strokeWidth={2.25} />
-      <Texto variante="cuerpoChico" style={[styles.texto, { color: aspecto.texto }]}>
-        {texto}
-      </Texto>
+      <View style={styles.cuerpo}>
+        <Texto variante="cuerpoChico" style={[styles.texto, { color: aspecto.texto }]}>
+          {texto}
+        </Texto>
+        {accion && <View style={styles.accion}>{accion}</View>}
+      </View>
     </View>
   );
 }
@@ -55,8 +61,14 @@ const styles = StyleSheet.create({
     borderRadius: radio.medio,
     borderCurve: "continuous",
   },
-  texto: {
+  cuerpo: {
     flex: 1,
+    gap: espacio[4],
+  },
+  texto: {
     fontFamily: fuentes.medio,
+  },
+  accion: {
+    alignItems: "flex-start",
   },
 });

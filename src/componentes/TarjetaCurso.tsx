@@ -41,7 +41,12 @@ export default function TarjetaCurso({ curso, avance }: Props) {
       style={({ pressed }) => pressed && styles.presionada}
     >
       <Superficie style={styles.tarjeta}>
-        <PortadaCurso id={curso.id} titulo={curso.titulo} tamano="tarjeta" />
+        <PortadaCurso
+          id={curso.id}
+          titulo={curso.titulo}
+          tamano="tarjeta"
+          idPortada={curso.idPortada}
+        />
         <View style={styles.texto}>
           <Texto variante="titulo3" numberOfLines={2}>
             {curso.titulo}

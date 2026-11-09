@@ -27,7 +27,7 @@ import { useColores } from "../../hooks/useColores";
 import { usePeticion } from "../../hooks/usePeticion";
 import { useRecargarAlVolver } from "../../hooks/useRecargarAlVolver";
 import { esNoDisponible, leerErrorDeCarga, traerCurso } from "../../servicios/cursos";
-import { MENSAJES_CATALOGO, type DetalleCurso as Curso } from "../../tipos/contrato";
+import { MENSAJES_CATALOGO, NOMBRE_IDIOMA, type DetalleCurso as Curso } from "../../tipos/contrato";
 import { textoCantidadLecciones } from "../../utilidades/cursos";
 import { avanceCurso, textoAciertos, textoBotonSiguiente } from "../../utilidades/progreso";
 
@@ -87,13 +87,22 @@ export default function DetalleCurso() {
         ) : null}
 
         <Superficie elevada style={styles.encabezado}>
-          <PortadaCurso id={curso.id} titulo={curso.titulo} tamano="detalle" />
+          <PortadaCurso
+            id={curso.id}
+            titulo={curso.titulo}
+            tamano="detalle"
+            idPortada={curso.idPortada}
+          />
           <View style={styles.datos}>
             <Texto variante="titulo2" accessibilityRole="header">
               {curso.titulo}
             </Texto>
             <Texto variante="cuerpoChico" color="primario" style={styles.autor}>
               Por {curso.autor.nombre}
+            </Texto>
+            {/* F14: el de la voz de escuchar y repetir */}
+            <Texto variante="nota" color="textoSuave">
+              Idioma: {NOMBRE_IDIOMA[curso.idioma]}
             </Texto>
             <Insignia
               tono="primario"
