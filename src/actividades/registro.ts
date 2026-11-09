@@ -1,7 +1,11 @@
 import type { ComponentType } from "react";
 import type { Actividad, TipoActividad } from "../tipos/contrato";
+import BancoPalabras from "./BancoPalabras";
+import Clasificar from "./Clasificar";
 import CompletarEspacios from "./CompletarEspacios";
+import Emparejar from "./Emparejar";
 import OpcionMultiple from "./OpcionMultiple";
+import Ordenar from "./Ordenar";
 import PreguntaAbierta from "./PreguntaAbierta";
 import TarjetaMemoria from "./TarjetaMemoria";
 import Teoria from "./Teoria";
@@ -18,6 +22,10 @@ export const registroActividades: {
   opcionMultiple: OpcionMultiple,
   completarEspacios: CompletarEspacios,
   preguntaAbierta: PreguntaAbierta,
+  emparejar: Emparejar,
+  clasificar: Clasificar,
+  ordenar: Ordenar,
+  bancoPalabras: BancoPalabras,
 };
 
 // Una versión vieja de la app puede recibir un tipo que todavía no conoce: se
