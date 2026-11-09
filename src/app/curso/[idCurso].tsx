@@ -200,17 +200,17 @@ function FilaLeccion({ leccion, primera, alAbrir }: PropsFilaLeccion) {
           {leccion.posicion}
         </Texto>
       </View>
-      <Texto style={styles.tituloLeccion}>{leccion.titulo}</Texto>
-      {completada && (
-        <View style={styles.completada}>
-          <CircleCheck size={20} color={c.broteFuerte} strokeWidth={2.25} />
-          {aciertos && (
-            <Texto variante="nota" color="textoSuave">
-              {aciertos}
-            </Texto>
-          )}
-        </View>
-      )}
+      {/* los aciertos van debajo del título: en la misma fila le quitaban tanto ancho que el
+          título se partía a media palabra en un teléfono de 375 px */}
+      <View style={styles.textosLeccion}>
+        <Texto style={styles.tituloLeccion}>{leccion.titulo}</Texto>
+        {aciertos && (
+          <Texto variante="nota" color="textoSuave">
+            {aciertos}
+          </Texto>
+        )}
+      </View>
+      {completada && <CircleCheck size={20} color={c.broteFuerte} strokeWidth={2.25} />}
       <ChevronRight size={20} color={c.textoTenue} strokeWidth={2.25} />
     </Pressable>
   );
@@ -299,14 +299,12 @@ const styles = StyleSheet.create({
   textoNumero: {
     fontFamily: fuentes.negrita,
   },
-  tituloLeccion: {
+  textosLeccion: {
     flex: 1,
-    fontFamily: fuentes.medio,
+    gap: espacio[1],
   },
-  completada: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: espacio[3],
+  tituloLeccion: {
+    fontFamily: fuentes.medio,
   },
   presionada: {
     borderRadius: radio.medio,
