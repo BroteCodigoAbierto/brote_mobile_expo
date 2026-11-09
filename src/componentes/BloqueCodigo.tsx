@@ -94,7 +94,10 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
     paddingTop: espacio[4],
   },
+  // encima del ScrollView, que se dibuja después con su fondo: sin zIndex, el margen negativo
+  // deja la mitad de abajo de la etiqueta tapada por el código
   etiqueta: {
+    zIndex: 1,
     alignSelf: "flex-end",
     marginRight: espacio[4],
     marginBottom: -espacio[3],
