@@ -75,7 +75,9 @@ export function useGrabacion(): Grabacion {
     } catch {
       // ya se había detenido sola (a los 30 s o por una llamada)
     }
-    await setAudioModeAsync({ allowsRecording: false }).catch(() => undefined);
+    await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(
+      () => undefined,
+    );
     terminando.current = false;
     if (!montado.current) return;
     ultima.current = grabador.uri;
@@ -150,8 +152,10 @@ export function useGrabacion(): Grabacion {
       return;
     }
     try {
-      // solo mientras graba: si no, lo que suena sale por el auricular y más bajo
-      await setAudioModeAsync({ allowsRecording: true });
+      // solo mientras graba: si no, lo que suena sale por el auricular y más bajo. En iOS,
+      // lo que no se pasa vale false, y grabar sin playsInSilentMode lanza un error que se
+      // veía como "No se encontró un micrófono"; por eso va siempre, también al terminar
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await grabador.prepareToRecordAsync();
       // la anterior se reemplaza
       reproductor.current?.remove();
@@ -162,7 +166,9 @@ export function useGrabacion(): Grabacion {
       grabador.record({ forDuration: LIMITES_AUDIOS.grabacionMax / 1000 });
       if (montado.current) setEstado("grabando");
     } catch {
-      await setAudioModeAsync({ allowsRecording: false }).catch(() => undefined);
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(
+        () => undefined,
+      );
       if (montado.current) setEstado("sinMicrofono");
     }
   }
