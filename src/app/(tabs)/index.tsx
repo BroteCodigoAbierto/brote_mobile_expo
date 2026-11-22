@@ -14,12 +14,14 @@ import Texto from "../../componentes/Texto";
 import { espacio, MARGEN_PANTALLA } from "../../constantes/tema";
 import { useCatalogo } from "../../hooks/useCatalogo";
 import { useColores } from "../../hooks/useColores";
+import { useRecargarAlVolver } from "../../hooks/useRecargarAlVolver";
 
 // Se busca cuando se deja de escribir, no con cada letra.
 const ESPERA_BUSQUEDA_MS = 300;
 
 // Catálogo de cursos publicados (spec F02): buscador, lista de 10 en 10 al
-// llegar al final y deslizar hacia abajo para recargar.
+// llegar al final y deslizar hacia abajo para recargar. No trae los cursos que ya
+// completaste, así que al volver a la pestaña se recarga en silencio.
 export default function Explorar() {
   const c = useColores();
   const {
@@ -36,7 +38,9 @@ export default function Explorar() {
     cargarMas,
     reintentar,
     recargar,
+    recargarEnSilencio,
   } = useCatalogo();
+  useRecargarAlVolver(recargarEnSilencio);
   const [texto, setTexto] = useState("");
 
   // al abrir, el catálogo completo sin esperar
@@ -92,8 +96,8 @@ export default function Explorar() {
           consulta === "" ? (
             <EstadoVacio
               icono={Library}
-              titulo="Todavía no hay cursos publicados."
-              texto="Cuando la comunidad publique sus primeros cursos, aparecerán aquí."
+              titulo="No hay cursos por explorar."
+              texto="Los que completas siguen en Mis cursos. Cuando la comunidad publique más, aparecerán aquí."
             />
           ) : (
             <EstadoVacio

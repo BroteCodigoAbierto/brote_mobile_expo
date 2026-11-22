@@ -30,7 +30,7 @@ export type EstadoCatalogo = {
 // vigente: así lo que se ve corresponde siempre al último texto escrito.
 type Pendiente =
   | { tipo: "primera"; consulta: string }
-  | { tipo: "recarga"; consulta: string }
+  | { tipo: "recarga"; consulta: string; enSilencio: boolean }
   | { tipo: "mas"; consulta: string; despues: string };
 
 type Estado = EstadoCatalogo & { pendiente: Pendiente | null };
@@ -39,7 +39,7 @@ type Accion =
   | { tipo: "buscar"; consulta: string }
   | { tipo: "cargarMas" }
   | { tipo: "reintentar" }
-  | { tipo: "recargar" }
+  | { tipo: "recargar"; enSilencio: boolean }
   | { tipo: "llegaron"; pendiente: Pendiente; respuesta: RespuestaCatalogo }
   | { tipo: "fallo"; pendiente: Pendiente; error: unknown };
 
@@ -124,13 +124,14 @@ function reducir(actual: Estado, accion: Accion): Estado {
       if (actual.fase === "error") return pedirPrimera(actual, actual.consulta);
       if (hayCargaPrincipal(actual)) return actual;
       // vuelve a los primeros 10 de la misma búsqueda; los 10 siguientes que
-      // estaban en camino ya no cuentan
+      // estaban en camino ya no cuentan. En silencio (al volver a la pestaña), sin el
+      // indicador de deslizar
       return {
         ...actual,
-        recargando: true,
+        recargando: !accion.enSilencio,
         errorRecarga: null,
         cargandoMas: false,
-        pendiente: { tipo: "recarga", consulta: actual.consulta },
+        pendiente: { tipo: "recarga", consulta: actual.consulta, enSilencio: accion.enSilencio },
       };
     case "llegaron":
       if (accion.pendiente !== actual.pendiente) return actual;
@@ -167,9 +168,10 @@ function reducir(actual: Estado, accion: Accion): Estado {
           pendiente: null,
         };
       }
-      // los cursos ya cargados siguen en pantalla
+      // los cursos ya cargados siguen en pantalla; si nadie pidió la recarga, sin aviso
       if (accion.pendiente.tipo === "recarga") {
-        return { ...actual, recargando: false, errorRecarga: accion.error, pendiente: null };
+        const errorRecarga = accion.pendiente.enSilencio ? null : accion.error;
+        return { ...actual, recargando: false, errorRecarga, pendiente: null };
       }
       return { ...actual, cargandoMas: false, errorMas: accion.error, pendiente: null };
   }
@@ -190,7 +192,12 @@ export function useCatalogo() {
   const buscar = useCallback((consulta: string) => despachar({ tipo: "buscar", consulta }), []);
   const cargarMas = useCallback(() => despachar({ tipo: "cargarMas" }), []);
   const reintentar = useCallback(() => despachar({ tipo: "reintentar" }), []);
-  const recargar = useCallback(() => despachar({ tipo: "recargar" }), []);
+  const recargar = useCallback(() => despachar({ tipo: "recargar", enSilencio: false }), []);
+  // al volver a "Explorar": un curso recién completado ya no sale en el catálogo
+  const recargarEnSilencio = useCallback(
+    () => despachar({ tipo: "recargar", enSilencio: true }),
+    [],
+  );
 
   const fallo = catalogo.error ?? catalogo.errorMas;
   return {
@@ -199,6 +206,7 @@ export function useCatalogo() {
     cargarMas,
     reintentar,
     recargar,
+    recargarEnSilencio,
     // lo que se muestra si falló la primera carga o la de los 10 siguientes
     mensajeError: fallo ? leerErrorDeCarga(fallo) : null,
     // si falló deslizar hacia abajo: se muestra arriba de la lista
