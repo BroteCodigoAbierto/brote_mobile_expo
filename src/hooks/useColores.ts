@@ -1,17 +1,36 @@
 import { useColorScheme } from "react-native";
+import { paletas } from "../constantes/paletas";
 import { colores, fondoAmbiental, sombras, type Colores, type Sombras } from "../constantes/tema";
+import { useTema } from "./useTema";
 
-// Colores del tema según el modo del sistema (claro u oscuro).
+export function useModoTema(): "claro" | "oscuro" {
+  const sistema = useColorScheme();
+  const { preferencia } = useTema();
+  return preferencia.modo === "sistema"
+    ? sistema === "dark"
+      ? "oscuro"
+      : "claro"
+    : preferencia.modo;
+}
+
 export function useColores(): Colores {
-  return useColorScheme() === "dark" ? colores.oscuro : colores.claro;
+  const modo = useModoTema();
+  const { preferencia } = useTema();
+  return preferencia.tema === "original"
+    ? colores[modo]
+    : { ...colores[modo], ...paletas[preferencia.tema][modo].colores };
 }
 
-// Sombras (boxShadow) del modo actual.
 export function useSombras(): Sombras {
-  return useColorScheme() === "dark" ? sombras.oscuro : sombras.claro;
+  const modo = useModoTema();
+  const { preferencia } = useTema();
+  return preferencia.tema === "original" ? sombras[modo] : paletas[preferencia.tema][modo].sombras;
 }
 
-// Degradado del fondo ambiental del modo actual.
 export function useFondoAmbiental(): string {
-  return useColorScheme() === "dark" ? fondoAmbiental.oscuro : fondoAmbiental.claro;
+  const modo = useModoTema();
+  const { preferencia } = useTema();
+  return preferencia.tema === "original"
+    ? fondoAmbiental[modo]
+    : paletas[preferencia.tema][modo].fondo;
 }

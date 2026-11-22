@@ -1,15 +1,8 @@
 import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from "expo-glass-effect";
 import { useEffect, useState } from "react";
-import {
-  AccessibilityInfo,
-  Platform,
-  StyleSheet,
-  useColorScheme,
-  View,
-  type ViewProps,
-} from "react-native";
+import { AccessibilityInfo, Platform, StyleSheet, View, type ViewProps } from "react-native";
 import { radio } from "../constantes/tema";
-import { useColores, useSombras } from "../hooks/useColores";
+import { useColores, useSombras, useModoTema } from "../hooks/useColores";
 
 type Props = ViewProps & {
   tono?: "normal" | "suave" | "solido";
@@ -27,7 +20,7 @@ const hayVidrioNativo =
 export default function Superficie({ tono = "normal", elevada = false, style, ...props }: Props) {
   const c = useColores();
   const s = useSombras();
-  const oscuro = useColorScheme() === "dark";
+  const oscuro = useModoTema() === "oscuro";
   const reducirTransparencia = useReducirTransparencia();
 
   const base = [
@@ -47,7 +40,7 @@ export default function Superficie({ tono = "normal", elevada = false, style, ..
     );
   }
 
-  const fondo = tono === "suave" ? c.vidrioSuave : c.vidrioOpaco;
+  const fondo = tono === "suave" && !reducirTransparencia ? c.vidrioSuave : c.vidrioOpaco;
   return <View style={[base, { backgroundColor: fondo }, style]} {...props} />;
 }
 

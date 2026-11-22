@@ -7,7 +7,8 @@ import {
   useFonts,
 } from "@expo-google-fonts/plus-jakarta-sans";
 import { SplashScreen } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+import BarraEstadoTema from "../componentes/BarraEstadoTema";
+import TemaProvider from "../contextos/TemaProvider";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NavegacionRaiz from "../componentes/NavegacionRaiz";
@@ -33,10 +34,12 @@ export default function LayoutRaiz() {
   // las actividades de relacionar arrastran con gestos (F11)
   return (
     <GestureHandlerRootView style={styles.raiz}>
-      <SesionProvider>
-        <NavegacionRaiz />
-        <StatusBar style="auto" />
-      </SesionProvider>
+      <TemaProvider>
+        <SesionProvider>
+          <NavegacionRaiz />
+          <BarraEstadoTema />
+        </SesionProvider>
+      </TemaProvider>
     </GestureHandlerRootView>
   );
 }

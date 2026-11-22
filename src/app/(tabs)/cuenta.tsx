@@ -1,6 +1,7 @@
 import { LogOut } from "lucide-react-native";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import SelectorTema from "../../componentes/SelectorTema";
 import Boton from "../../componentes/Boton";
 import FondoAmbiental from "../../componentes/FondoAmbiental";
 import Superficie from "../../componentes/Superficie";
@@ -16,37 +17,41 @@ export default function Cuenta() {
 
   return (
     <FondoAmbiental>
-      <SafeAreaView style={styles.pantalla} edges={["top"]}>
-        <Texto variante="titulo1" accessibilityRole="header">
-          Cuenta
-        </Texto>
-        <Superficie elevada style={styles.tarjeta}>
-          <View style={styles.avatar} importantForAccessibility="no-hide-descendants">
-            <Texto variante="titulo2" style={styles.inicial}>
-              {inicialPortada(usuario?.nombre ?? "")}
-            </Texto>
-          </View>
-          <View style={styles.datos}>
-            <Texto variante="titulo3">{usuario?.nombre}</Texto>
-            <Texto variante="cuerpoChico" color="textoSuave">
-              {usuario?.correo}
-            </Texto>
-          </View>
-        </Superficie>
-        <Boton
-          titulo="Cerrar sesión"
-          variante="peligro"
-          icono={LogOut}
-          alPresionar={cerrarSesion}
-        />
+      <SafeAreaView style={styles.areaSegura} edges={["top"]}>
+        <ScrollView contentContainerStyle={styles.pantalla}>
+          <Texto variante="titulo1" accessibilityRole="header">
+            Cuenta
+          </Texto>
+          <Superficie elevada style={styles.tarjeta}>
+            <View style={styles.avatar} importantForAccessibility="no-hide-descendants">
+              <Texto variante="titulo2" style={styles.inicial}>
+                {inicialPortada(usuario?.nombre ?? "")}
+              </Texto>
+            </View>
+            <View style={styles.datos}>
+              <Texto variante="titulo3">{usuario?.nombre}</Texto>
+              <Texto variante="cuerpoChico" color="textoSuave">
+                {usuario?.correo}
+              </Texto>
+            </View>
+          </Superficie>
+          <SelectorTema />
+          <Boton
+            titulo="Cerrar sesión"
+            variante="peligro"
+            icono={LogOut}
+            alPresionar={cerrarSesion}
+          />
+        </ScrollView>
       </SafeAreaView>
     </FondoAmbiental>
   );
 }
 
 const styles = StyleSheet.create({
+  areaSegura: { flex: 1 },
   pantalla: {
-    flex: 1,
+    paddingBottom: espacio[7],
     paddingTop: espacio[5],
     paddingHorizontal: MARGEN_PANTALLA,
     gap: espacio[7],
