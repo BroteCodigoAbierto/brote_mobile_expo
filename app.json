@@ -37,11 +37,27 @@
         {
           "microphonePermission": "Brote usa el micrófono para que te grabes y te compares con la frase. La grabación no sale de tu teléfono."
         }
-      ]
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "pedroxionx",
+    "extra": {
+      "eas": {
+        "projectId": "2f5d7085-adff-4444-8977-a1faf697569a"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2f5d7085-adff-4444-8977-a1faf697569a"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }

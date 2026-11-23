@@ -105,3 +105,17 @@ reemplaza.
   imágenes y audios sin usar (que corre cada hora en local) no corre en Vercel.
   Los datos de prueba se siembran con `SEMBRAR=1` en el proyecto de Vercel
   (`scripts/vercel-build.sh` del backend).
+
+## 2026-11-22 · La app se abre en Expo Go con EAS Update
+
+- **Decisión**: el JavaScript de la app se publica con EAS Update (rama
+  `produccion`, `runtimeVersion` con la política `sdkVersion`, o sea
+  `exposdk:58.0.0`) y se abre en Expo Go apuntando a la API de Vercel
+  (`EXPO_PUBLIC_URL_API=https://brote-api.vercel.app` al publicar).
+- **Por qué**: la app no tiene módulos nativos propios, así que Expo Go basta y
+  no hace falta compilar ni instalar nada. La liga funciona sin la laptop prendida.
+- **Descartado**: Snack (va atrás en versiones de SDK y Brote usa audio, voz,
+  vidrio de iOS y almacenamiento seguro) y la liga del servidor local de Expo
+  (solo funciona mientras corre en la laptop).
+- **Para volver a publicar**: `EXPO_PUBLIC_URL_API=https://brote-api.vercel.app
+  npx eas-cli update --branch produccion --environment production`.

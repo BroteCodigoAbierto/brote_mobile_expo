@@ -11,6 +11,11 @@ de [brote_backend_express](https://github.com/BroteCodigoAbierto/brote_backend_e
 
 ## Entrega de Aplicaciones Móviles
 
+- **Abrir la app en Expo Go** (SDK 58), con la API desplegada en Vercel:
+  [página del update con QR](https://expo.dev/accounts/pedroxionx/projects/brote/updates/9c552ca4-8a28-4b29-82f9-5c244751a106)
+  (botón _Preview_) o la liga directa
+  `exp://u.expo.dev/2f5d7085-adff-4444-8977-a1faf697569a/group/9c552ca4-8a28-4b29-82f9-5c244751a106`.
+  Entra con `autor@brote.test` / `brote12345`.
 - [Bitácora de IA](docs/bitacora-ia.md)
 - [Diario de decisiones](docs/diario-decisiones.md)
 - Los otros repos del proyecto:
