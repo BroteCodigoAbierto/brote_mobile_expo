@@ -180,7 +180,10 @@ function LeccionTerminada({
   preguntas,
   alSalir,
 }: PropsLeccionTerminada) {
-  const { estado, reintentar } = useGuardarProgreso(idCurso, idLeccion, { aciertos, preguntas });
+  const { estado, reintentar, insignia } = useGuardarProgreso(idCurso, idLeccion, {
+    aciertos,
+    preguntas,
+  });
 
   return (
     <Marco>
@@ -197,6 +200,7 @@ function LeccionTerminada({
           alVolver={alSalir}
           guardado={estado}
           alReintentar={reintentar}
+          insignia={insignia}
         />
       </View>
     </Marco>
