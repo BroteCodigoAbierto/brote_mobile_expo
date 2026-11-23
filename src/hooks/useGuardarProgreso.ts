@@ -3,7 +3,7 @@ import type { EstadoGuardado } from "../componentes/ResultadoLeccion";
 import { ErrorConexion } from "../servicios/api";
 import { esNoDisponible } from "../servicios/cursos";
 import { guardarProgreso } from "../servicios/progreso";
-import type { CuerpoProgresoLeccion } from "../tipos/contrato";
+import type { CuerpoProgresoLeccion, InsigniaCurso } from "../tipos/contrato";
 
 // Guarda el resultado de una lección al llegar a la pantalla final (spec F04;
 // brote_specs, research de F04, punto 7). Se intenta una sola vez; volver a
@@ -15,6 +15,8 @@ export function useGuardarProgreso(
   { aciertos, preguntas }: CuerpoProgresoLeccion,
 ) {
   const [estado, setEstado] = useState<EstadoGuardado>("guardando");
+  // F08: la insignia que ganó con esta lección, si el registro salió bien y ganó una
+  const [insignia, setInsignia] = useState<InsigniaCurso | null>(null);
   // Dos refs y no una variable del efecto: StrictMode monta, desmonta y vuelve
   // a montar. `enviado` evita el segundo PUT y `montado` deja que la respuesta
   // del primero llegue al montaje que sigue vivo.
@@ -30,8 +32,10 @@ export function useGuardarProgreso(
 
   const enviar = useCallback(() => {
     guardarProgreso(idCurso, idLeccion, { aciertos, preguntas })
-      .then(() => {
-        if (montado.current) setEstado("guardado");
+      .then(({ insigniaNueva }) => {
+        if (!montado.current) return;
+        setInsignia(insigniaNueva);
+        setEstado("guardado");
       })
       .catch((error: unknown) => {
         if (montado.current) setEstado(estadoDeError(error));
@@ -49,7 +53,7 @@ export function useGuardarProgreso(
     enviar();
   }
 
-  return { estado, reintentar };
+  return { estado, reintentar, insignia };
 }
 
 function estadoDeError(error: unknown): EstadoGuardado {
