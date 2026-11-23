@@ -1,13 +1,24 @@
 # brote_mobile_expo
 
 App móvil de **Brote**, la plataforma open source de cursos interactivos
-creados por la comunidad. Aquí se cursan lecciones, también sin conexión. Los
-cursos se crean en la web
+creados por la comunidad. Aquí se cursan lecciones (cursar sin conexión es F10,
+todavía pendiente). Los cursos se crean en la web
 ([brote_web_react](https://github.com/BroteCodigoAbierto/brote_web_react)).
 
 Qué hace y por qué está en
 [brote_specs](https://github.com/BroteCodigoAbierto/brote_specs). Consume la API
 de [brote_backend_express](https://github.com/BroteCodigoAbierto/brote_backend_express).
+
+## Entrega de Aplicaciones Móviles
+
+- [Bitácora de IA](docs/bitacora-ia.md)
+- [Diario de decisiones](docs/diario-decisiones.md)
+- Los otros repos del proyecto:
+  [brote_specs](https://github.com/BroteCodigoAbierto/brote_specs) (specs y
+  decisiones),
+  [brote_backend_express](https://github.com/BroteCodigoAbierto/brote_backend_express)
+  (API) y [brote_web_react](https://github.com/BroteCodigoAbierto/brote_web_react)
+  (web, donde se crean los cursos).
 
 ## Stack
 
