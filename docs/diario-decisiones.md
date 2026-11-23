@@ -84,3 +84,24 @@ reemplaza.
 - **La app se queda en vertical.** `app.json` fija `"orientation": "portrait"`:
   las lecciones están diseñadas para una columna y girar el teléfono no cambia
   nada.
+
+## 2026-11-22 · Despliegue de la web en Vercel
+
+- **Decisión**: la web y la API se despliegan en Vercel (plan gratis) y la base
+  en Neon (PostgreSQL gratis, conectado desde el Marketplace de Vercel).
+  - Web: https://brote-web-react.vercel.app
+  - API: https://brote-api.vercel.app (Express corre como una función,
+    `api/index.ts`; en local se sigue arrancando con `src/servidor.ts`).
+- **Por qué así**: la sesión vive en una cookie. Si la web y la API están en
+  dominios distintos, Chrome la trata como de terceros y no la manda. Por eso la
+  web reenvía `/api/*` a la API (`vercel.json`): para el navegador es un solo
+  sitio.
+- **Descartado**: Render (la API se duerme y tarda ~50 s en despertar) y Azure
+  (su plan gratis de Static Web Apps no puede reenviar a otra API).
+- **Para poder desplegar gratis**, `brote_web_react` y `brote_specs` pasaron a
+  ser públicos, como ya lo eran el backend y el móvil.
+- **Límites**: cada petición acepta como máximo 4.5 MB en Vercel, así que no se
+  pueden subir imágenes de más de ~4 MB en la versión desplegada. La limpieza de
+  imágenes y audios sin usar (que corre cada hora en local) no corre en Vercel.
+  Los datos de prueba se siembran con `SEMBRAR=1` en el proyecto de Vercel
+  (`scripts/vercel-build.sh` del backend).
