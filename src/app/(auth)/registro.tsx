@@ -16,9 +16,9 @@ import { validarCrearCuenta } from "../../validacion/cuenta";
 export default function Registro() {
   const { crearCuenta } = useSesion();
   const { valores, errores, general, enviando, cambiar, manejarEnvio } = useFormulario({
-    inicial: { nombre: "", correo: "", contrasena: "" },
+    inicial: { nombre: "", correo: "", contrasena: "", confirmacion: "" },
     validar: validarCrearCuenta,
-    enviar: crearCuenta,
+    enviar: ({ nombre, correo, contrasena }) => crearCuenta({ nombre, correo, contrasena }),
   });
 
   return (
@@ -63,6 +63,13 @@ export default function Registro() {
         valor={valores.contrasena}
         alCambiar={(valor) => cambiar("contrasena", valor)}
         error={errores.contrasena}
+      />
+      <CampoContrasena
+        etiqueta="Repite la contraseña"
+        autoComplete="new-password"
+        valor={valores.confirmacion}
+        alCambiar={(valor) => cambiar("confirmacion", valor)}
+        error={errores.confirmacion}
         alEnviar={manejarEnvio}
       />
       <Boton

@@ -3,7 +3,10 @@ import { LIMITES_CUENTA, MENSAJES_CUENTA, PATRON_CORREO } from "../tipos/contrat
 // Mismas reglas que valida el backend (spec F01, "Validaciones"). Aquí solo dan
 // buena experiencia: el servidor vuelve a revisar todo.
 
-export type CampoCuenta = "nombre" | "correo" | "contrasena";
+export type CampoCuenta = "nombre" | "correo" | "contrasena" | "confirmacion";
+
+// Solo del formulario de registro: no viene del contrato ni se envía al servidor.
+const MENSAJE_CONFIRMACION = "Las contraseñas no coinciden.";
 export type ErroresCuenta = Partial<Record<CampoCuenta, string>>;
 
 // En caracteres Unicode, igual que el backend: "é" cuenta 1.
@@ -36,6 +39,11 @@ export function validarCrearCuenta(valores: Record<CampoCuenta, string>): Errore
     errores.contrasena = MENSAJES_CUENTA.contrasenaCorta;
   } else if (largo(contrasena) > LIMITES_CUENTA.contrasenaMax) {
     errores.contrasena = MENSAJES_CUENTA.contrasenaLarga;
+  }
+
+  // solo si la contraseña ya es válida, para no mostrar dos errores a la vez
+  if (!errores.contrasena && valores.confirmacion !== contrasena) {
+    errores.confirmacion = MENSAJE_CONFIRMACION;
   }
 
   return sinVacios(errores);
