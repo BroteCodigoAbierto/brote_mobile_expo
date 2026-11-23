@@ -37,11 +37,7 @@
         {
           "microphonePermission": "Brote usa el micrófono para que te grabes y te compares con la frase. La grabación no sale de tu teléfono."
         }
-      ],
-      "expo-font",
-      "expo-image",
-      "expo-status-bar",
-      "expo-web-browser"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
