@@ -42,6 +42,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "pedroxionx",
+    "extra": {
+      "eas": {
+        "projectId": "2f5d7085-adff-4444-8977-a1faf697569a"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2f5d7085-adff-4444-8977-a1faf697569a"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }
