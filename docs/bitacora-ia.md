@@ -6,13 +6,13 @@ dónde se equivocó. Las decisiones que salieron de esto están en
 
 ## Herramientas
 
-| Herramienta | Para qué |
-|---|---|
-| **Claude Code** (Claude Opus 5.5) | Specs, planes, tareas e implementación con los comandos `/speckit-*`, en una sesión abierta en `brote_specs` con acceso a los otros tres repos |
-| **GitHub Spec Kit** | El flujo de SDD: spec → plan → tareas → análisis → implementación |
-| **Claude Desktop con computer use** | Validar la app en mi iPhone 12 mini por iPhone Mirroring, desde la Mac |
-| **Claude en Chrome** | Validar la web, que comparte API y contrato con el móvil |
-| **Codex** | La feature de temas (rama `Codex-Temas`), que no entró a la entrega |
+| Herramienta                         | Para qué                                                                                                                                       |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Claude Code** (Claude Opus 5.5)   | Specs, planes, tareas e implementación con los comandos `/speckit-*`, en una sesión abierta en `brote_specs` con acceso a los otros tres repos |
+| **GitHub Spec Kit**                 | El flujo de SDD: spec → plan → tareas → análisis → implementación                                                                              |
+| **Claude Desktop con computer use** | Validar la app en mi iPhone 12 mini por iPhone Mirroring, desde la Mac                                                                         |
+| **Claude en Chrome**                | Validar la web, que comparte API y contrato con el móvil                                                                                       |
+| **Codex**                           | La feature de temas (rama `Codex-Temas`), que no entró a la entrega                                                                            |
 
 ## Cómo trabajo con la IA
 
@@ -33,17 +33,17 @@ dónde se equivocó. Las decisiones que salieron de esto están en
 
 ## Cronología
 
-| Fecha | Qué se hizo |
-|---|---|
-| 2026-08-30 | Plan de proyecto con otro stack para la API y la web (Spring Boot y Vue); el móvil ya era Expo |
-| 2026-10-05 | Primer mockup de la app (pantalla de entrar) |
-| 2026-10-14 | Con Claude Code: base del proyecto, Spec Kit, constitución y decisiones 0001 a 0014. El móvil solo cursa (0003) |
-| 2026-10-26 | F01: crear cuenta y entrar; sesión en almacenamiento seguro |
-| 2026-11-02 | F02 catálogo y F03 cursar una lección |
-| 2026-11-03 | F04 progreso |
-| 2026-11-06 a 11-08 | F11 actividades de relacionar; F12 código y terminal |
-| 2026-11-08 | F13 imágenes (`expo-image`); F14 escuchar y repetir (`expo-speech`, `expo-audio`) |
-| 2026-11-22 | Entrega: F14 en `main`, esta bitácora y el diario de decisiones |
+| Fecha              | Qué se hizo                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| 2026-08-30         | Plan de proyecto con otro stack para la API y la web (Spring Boot y Vue); el móvil ya era Expo                  |
+| 2026-10-05         | Primer mockup de la app (pantalla de entrar)                                                                    |
+| 2026-10-14         | Con Claude Code: base del proyecto, Spec Kit, constitución y decisiones 0001 a 0014. El móvil solo cursa (0003) |
+| 2026-10-26         | F01: crear cuenta y entrar; sesión en almacenamiento seguro                                                     |
+| 2026-11-02         | F02 catálogo y F03 cursar una lección                                                                           |
+| 2026-11-03         | F04 progreso                                                                                                    |
+| 2026-11-06 a 11-08 | F11 actividades de relacionar; F12 código y terminal                                                            |
+| 2026-11-08         | F13 imágenes (`expo-image`); F14 escuchar y repetir (`expo-speech`, `expo-audio`)                               |
+| 2026-11-22         | Entrega: F14 en `main`, esta bitácora y el diario de decisiones                                                 |
 
 ## Dónde se equivocó la IA y cómo me di cuenta
 
