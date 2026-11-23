@@ -11,9 +11,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { espacio, movimiento } from "../constantes/tema";
 import { useColores, useSombras } from "../hooks/useColores";
+import type { InsigniaCurso as TipoInsigniaCurso } from "../tipos/contrato";
 import Aviso from "./Aviso";
 import Boton from "./Boton";
 import Insignia from "./Insignia";
+import InsigniaCurso from "./InsigniaCurso";
 import Texto from "./Texto";
 
 // Estado del progreso de la lección (spec F04). Los mismos valores que en la web.
@@ -27,6 +29,8 @@ type Props = {
   // sin él no se muestra nada del guardado
   guardado?: EstadoGuardado;
   alReintentar?: () => void;
+  // F08: la insignia que ganó con esta lección; solo llega si el progreso se guardó
+  insignia?: TipoInsigniaCurso | null;
 };
 
 const AVISOS_GUARDADO = {
@@ -45,6 +49,7 @@ export default function ResultadoLeccion({
   alVolver,
   guardado,
   alReintentar,
+  insignia: insigniaGanada,
 }: Props) {
   const c = useColores();
   const s = useSombras();
@@ -102,6 +107,14 @@ export default function ResultadoLeccion({
       )}
       {guardado && (
         <View style={styles.guardado} accessibilityLiveRegion="polite">
+          {insigniaGanada && (
+            <View style={styles.insigniaGanada}>
+              <InsigniaCurso insignia={insigniaGanada} tamano="grande" />
+              <Texto variante="titulo3" style={styles.centrado}>
+                ¡Ganaste la insignia de {insigniaGanada.titulo}!
+              </Texto>
+            </View>
+          )}
           <EstadoDelGuardado guardado={guardado} alReintentar={alReintentar} />
         </View>
       )}
@@ -186,6 +199,12 @@ const styles = StyleSheet.create({
   guardado: {
     alignSelf: "stretch",
     alignItems: "center",
+  },
+  // F08: la insignia ganada, centrada, antes del estado del guardado
+  insigniaGanada: {
+    alignItems: "center",
+    gap: espacio[4],
+    marginBottom: espacio[5],
   },
   fila: {
     flexDirection: "row",
