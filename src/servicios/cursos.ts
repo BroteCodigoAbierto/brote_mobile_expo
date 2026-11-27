@@ -1,13 +1,46 @@
-import type { RespuestaCatalogo, RespuestaCurso, RespuestaError } from "../tipos/contrato";
+import type {
+  CategoriaCurso,
+  IdiomaCurso,
+  NivelCurso,
+  OrdenCatalogo,
+  RespuestaCatalogo,
+  RespuestaCurso,
+  RespuestaError,
+} from "../tipos/contrato";
 import { ErrorConexion, ErrorHttp, MENSAJE_SIN_CONEXION, MENSAJE_SIN_SERVIDOR, pedir } from "./api";
 
-type ConsultaCatalogo = { q: string; despues?: string | null };
+export type FiltrosCatalogo = {
+  q: string;
+  categoria?: CategoriaCurso;
+  nivel?: NivelCurso;
+  idioma?: IdiomaCurso;
+  orden?: OrdenCatalogo;
+  ocultarCompletados?: boolean;
+  organizacion?: string;
+};
 
-// GET /cursos: los siguientes 10 cursos publicados que coinciden con `q`, a
-// partir del cursor `despues` (el `siguiente` de la respuesta anterior).
-export function traerCatalogo({ q, despues }: ConsultaCatalogo) {
+type ConsultaCatalogo = FiltrosCatalogo & { despues?: string | null };
+
+// GET /cursos: cursos publicados según búsqueda, filtros y organización opcional,
+// paginados a partir del cursor `despues`.
+export function traerCatalogo({
+  q,
+  categoria,
+  nivel,
+  idioma,
+  orden,
+  ocultarCompletados,
+  organizacion,
+  despues,
+}: ConsultaCatalogo) {
   const parametros = new URLSearchParams();
   if (q) parametros.set("q", q);
+  if (categoria) parametros.set("categoria", categoria);
+  if (nivel) parametros.set("nivel", nivel);
+  if (idioma) parametros.set("idioma", idioma);
+  if (orden && orden !== "recientes") parametros.set("orden", orden);
+  if (ocultarCompletados) parametros.set("ocultarCompletados", "true");
+  if (organizacion) parametros.set("organizacion", organizacion);
   if (despues) parametros.set("despues", despues);
   const consulta = parametros.toString();
   return pedir<RespuestaCatalogo>(consulta ? `/cursos?${consulta}` : "/cursos");

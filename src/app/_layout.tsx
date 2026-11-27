@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NavegacionRaiz from "../componentes/NavegacionRaiz";
+import AspectoProvider from "../contextos/AspectoProvider";
 import SesionProvider from "../contextos/SesionProvider";
 
 // La pantalla de arranque se queda hasta tener la tipografía del sistema de
@@ -33,10 +34,12 @@ export default function LayoutRaiz() {
   // las actividades de relacionar arrastran con gestos (F11)
   return (
     <GestureHandlerRootView style={styles.raiz}>
-      <SesionProvider>
-        <NavegacionRaiz />
-        <StatusBar style="auto" />
-      </SesionProvider>
+      <AspectoProvider>
+        <SesionProvider>
+          <NavegacionRaiz />
+          <StatusBar style="auto" />
+        </SesionProvider>
+      </AspectoProvider>
     </GestureHandlerRootView>
   );
 }

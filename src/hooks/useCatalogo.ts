@@ -1,21 +1,20 @@
 import { useCallback, useEffect, useReducer } from "react";
-import { leerErrorDeCarga, traerCatalogo } from "../servicios/cursos";
+import { leerErrorDeCarga, traerCatalogo, type FiltrosCatalogo } from "../servicios/cursos";
 import type { RespuestaCatalogo, ResumenCurso } from "../tipos/contrato";
 
-// Estado del catálogo (spec F02), con las mismas reglas que el CatalogoContext
-// de la web. No hace falta un contexto: la pestaña "Explorar" sigue montada
-// debajo del detalle, así que al volver todo está como se dejó.
+// Estado del catálogo (spec F02 + F16), con soporte para búsqueda, filtros y
+// espacio de organización opcional. La pestaña "Explorar" sigue montada debajo
+// del detalle, así que al volver todo está como se dejó.
 
 export type EstadoCatalogo = {
-  // la búsqueda, ya recortada, de lo que está en pantalla (la lista o el
-  // error); null hasta la primera respuesta. La que está en camino no cuenta
-  consulta: string | null;
+  // filtros vigentes de lo que está en pantalla; null hasta la primera respuesta
+  filtros: FiltrosCatalogo | null;
   cursos: ResumenCurso[];
-  // cursor para pedir los 10 siguientes; null si no hay más
+  // cursor para pedir los siguientes cursos; null si no hay más
   siguiente: string | null;
-  // la primera carga de la consulta: sin lista mientras carga o si falló
+  // la primera carga de los filtros: sin lista mientras carga o si falló
   fase: "cargando" | "listo" | "error";
-  // hay una búsqueda nueva en camino y la lista anterior sigue en pantalla
+  // hay una búsqueda o filtro nuevo en camino y la lista anterior sigue en pantalla
   buscando: boolean;
   cargandoMas: boolean;
   errorMas: unknown;
@@ -25,18 +24,15 @@ export type EstadoCatalogo = {
   errorRecarga: unknown;
 };
 
-// El pedido que falta hacer o que está en camino. Cada respuesta trae el
-// pedido que la originó (con su consulta) y solo cuenta si sigue siendo el
-// vigente: así lo que se ve corresponde siempre al último texto escrito.
 type Pendiente =
-  | { tipo: "primera"; consulta: string }
-  | { tipo: "recarga"; consulta: string; enSilencio: boolean }
-  | { tipo: "mas"; consulta: string; despues: string };
+  | { tipo: "primera"; filtros: FiltrosCatalogo; clave: string }
+  | { tipo: "recarga"; filtros: FiltrosCatalogo; clave: string; enSilencio: boolean }
+  | { tipo: "mas"; filtros: FiltrosCatalogo; clave: string; despues: string };
 
-type Estado = EstadoCatalogo & { pendiente: Pendiente | null };
+type Estado = EstadoCatalogo & { clave: string | null; pendiente: Pendiente | null };
 
 type Accion =
-  | { tipo: "buscar"; consulta: string }
+  | { tipo: "buscar"; filtros: FiltrosCatalogo }
   | { tipo: "cargarMas" }
   | { tipo: "reintentar" }
   | { tipo: "recargar"; enSilencio: boolean }
@@ -44,7 +40,8 @@ type Accion =
   | { tipo: "fallo"; pendiente: Pendiente; error: unknown };
 
 const inicial: Estado = {
-  consulta: null,
+  filtros: null,
+  clave: null,
   cursos: [],
   siguiente: null,
   fase: "cargando",
@@ -57,16 +54,24 @@ const inicial: Estado = {
   pendiente: null,
 };
 
-// La búsqueda que se va a mostrar: la que está en camino o, si no hay, la que
-// está en pantalla.
-function consultaVigente(actual: Estado): string | null {
-  const { pendiente } = actual;
-  return pendiente && pendiente.tipo !== "mas" ? pendiente.consulta : actual.consulta;
+function claveDeFiltros(f: FiltrosCatalogo): string {
+  return JSON.stringify([
+    f.q,
+    f.categoria ?? "",
+    f.nivel ?? "",
+    f.idioma ?? "",
+    f.orden ?? "recientes",
+    Boolean(f.ocultarCompletados),
+    f.organizacion ?? "",
+  ]);
 }
 
-// Pide desde el primer curso. Si hay una lista en pantalla se queda, atenuada,
-// hasta que llegan los resultados (spec F02, "Buscando").
-function pedirPrimera(actual: Estado, consulta: string): Estado {
+function claveVigente(actual: Estado): string | null {
+  const { pendiente } = actual;
+  return pendiente && pendiente.tipo !== "mas" ? pendiente.clave : actual.clave;
+}
+
+function pedirPrimera(actual: Estado, filtros: FiltrosCatalogo): Estado {
   const conLista = actual.fase === "listo";
   return {
     ...actual,
@@ -77,61 +82,62 @@ function pedirPrimera(actual: Estado, consulta: string): Estado {
     error: null,
     recargando: false,
     errorRecarga: null,
-    pendiente: { tipo: "primera", consulta },
+    pendiente: { tipo: "primera", filtros, clave: claveDeFiltros(filtros) },
   };
 }
 
-function pedirMas(actual: Estado, consulta: string, despues: string): Estado {
+function pedirMas(actual: Estado, filtros: FiltrosCatalogo, despues: string): Estado {
   return {
     ...actual,
     cargandoMas: true,
     errorMas: null,
-    pendiente: { tipo: "mas", consulta, despues },
+    pendiente: { tipo: "mas", filtros, clave: claveDeFiltros(filtros), despues },
   };
 }
 
-// Mientras llega una búsqueda, una recarga o la primera carga, no se piden más.
 function hayCargaPrincipal(actual: Estado): boolean {
   return actual.fase !== "listo" || actual.buscando || actual.recargando;
 }
 
 function reducir(actual: Estado, accion: Accion): Estado {
   switch (accion.tipo) {
-    case "buscar":
-      // la misma búsqueda no se pide otra vez, salvo que haya fallado
-      if (accion.consulta === consultaVigente(actual) && actual.fase !== "error") return actual;
-      return pedirPrimera(actual, accion.consulta);
+    case "buscar": {
+      const clave = claveDeFiltros(accion.filtros);
+      if (clave === claveVigente(actual) && actual.fase !== "error") return actual;
+      return pedirPrimera(actual, accion.filtros);
+    }
     case "cargarMas":
-      // una sola carga a la vez, y nunca con cursos de una búsqueda anterior
       if (
-        actual.consulta === null ||
+        actual.filtros === null ||
         !actual.siguiente ||
         actual.cargandoMas ||
         hayCargaPrincipal(actual)
       ) {
         return actual;
       }
-      return pedirMas(actual, actual.consulta, actual.siguiente);
+      return pedirMas(actual, actual.filtros, actual.siguiente);
     case "reintentar":
-      if (actual.consulta === null) return actual;
-      if (actual.fase === "error") return pedirPrimera(actual, actual.consulta);
+      if (actual.filtros === null) return actual;
+      if (actual.fase === "error") return pedirPrimera(actual, actual.filtros);
       if (actual.errorMas && actual.siguiente) {
-        return pedirMas(actual, actual.consulta, actual.siguiente);
+        return pedirMas(actual, actual.filtros, actual.siguiente);
       }
       return actual;
     case "recargar":
-      if (actual.consulta === null) return actual;
-      if (actual.fase === "error") return pedirPrimera(actual, actual.consulta);
+      if (actual.filtros === null) return actual;
+      if (actual.fase === "error") return pedirPrimera(actual, actual.filtros);
       if (hayCargaPrincipal(actual)) return actual;
-      // vuelve a los primeros 10 de la misma búsqueda; los 10 siguientes que
-      // estaban en camino ya no cuentan. En silencio (al volver a la pestaña), sin el
-      // indicador de deslizar
       return {
         ...actual,
         recargando: !accion.enSilencio,
         errorRecarga: null,
         cargandoMas: false,
-        pendiente: { tipo: "recarga", consulta: actual.consulta, enSilencio: accion.enSilencio },
+        pendiente: {
+          tipo: "recarga",
+          filtros: actual.filtros,
+          clave: claveDeFiltros(actual.filtros),
+          enSilencio: accion.enSilencio,
+        },
       };
     case "llegaron":
       if (accion.pendiente !== actual.pendiente) return actual;
@@ -146,7 +152,8 @@ function reducir(actual: Estado, accion: Accion): Estado {
       }
       return {
         ...actual,
-        consulta: accion.pendiente.consulta,
+        filtros: accion.pendiente.filtros,
+        clave: accion.pendiente.clave,
         cursos: accion.respuesta.cursos,
         siguiente: accion.respuesta.siguiente,
         fase: "listo",
@@ -161,14 +168,14 @@ function reducir(actual: Estado, accion: Accion): Estado {
       if (accion.pendiente.tipo === "primera") {
         return {
           ...actual,
-          consulta: accion.pendiente.consulta,
+          filtros: accion.pendiente.filtros,
+          clave: accion.pendiente.clave,
           fase: "error",
           buscando: false,
           error: accion.error,
           pendiente: null,
         };
       }
-      // los cursos ya cargados siguen en pantalla; si nadie pidió la recarga, sin aviso
       if (accion.pendiente.tipo === "recarga") {
         const errorRecarga = accion.pendiente.enSilencio ? null : accion.error;
         return { ...actual, recargando: false, errorRecarga, pendiente: null };
@@ -179,21 +186,24 @@ function reducir(actual: Estado, accion: Accion): Estado {
 
 export function useCatalogo() {
   const [estado, despachar] = useReducer(reducir, inicial);
-  const { pendiente, ...catalogo } = estado;
+  const { pendiente, clave: _clave, ...catalogo } = estado;
+  void _clave;
 
   useEffect(() => {
     if (!pendiente) return;
     const despues = pendiente.tipo === "mas" ? pendiente.despues : null;
-    traerCatalogo({ q: pendiente.consulta, despues })
+    traerCatalogo({ ...pendiente.filtros, despues })
       .then((respuesta) => despachar({ tipo: "llegaron", pendiente, respuesta }))
       .catch((error: unknown) => despachar({ tipo: "fallo", pendiente, error }));
   }, [pendiente]);
 
-  const buscar = useCallback((consulta: string) => despachar({ tipo: "buscar", consulta }), []);
+  const buscar = useCallback(
+    (filtros: FiltrosCatalogo) => despachar({ tipo: "buscar", filtros }),
+    [],
+  );
   const cargarMas = useCallback(() => despachar({ tipo: "cargarMas" }), []);
   const reintentar = useCallback(() => despachar({ tipo: "reintentar" }), []);
   const recargar = useCallback(() => despachar({ tipo: "recargar", enSilencio: false }), []);
-  // al volver a "Explorar": un curso recién completado ya no sale en el catálogo
   const recargarEnSilencio = useCallback(
     () => despachar({ tipo: "recargar", enSilencio: true }),
     [],
@@ -207,9 +217,7 @@ export function useCatalogo() {
     reintentar,
     recargar,
     recargarEnSilencio,
-    // lo que se muestra si falló la primera carga o la de los 10 siguientes
     mensajeError: fallo ? leerErrorDeCarga(fallo) : null,
-    // si falló deslizar hacia abajo: se muestra arriba de la lista
     mensajeErrorRecarga: catalogo.errorRecarga ? leerErrorDeCarga(catalogo.errorRecarga) : null,
   };
 }

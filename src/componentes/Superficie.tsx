@@ -9,6 +9,7 @@ import {
   type ViewProps,
 } from "react-native";
 import { radio } from "../constantes/tema";
+import { useAspecto } from "../hooks/useAspecto";
 import { useColores, useSombras } from "../hooks/useColores";
 
 type Props = ViewProps & {
@@ -21,12 +22,13 @@ const hayVidrioNativo =
   Platform.OS === "ios" && isLiquidGlassAvailable() && isGlassEffectAPIAvailable();
 
 // Panel de vidrio, base de tarjetas, paneles y barras (docs/diseno.md,
-// sección 3). En iOS usa Liquid Glass nativo salvo con "Reducir transparencia";
-// en Android y en el resto, una superficie opaca con el mismo borde y sombra.
-// Las pantallas no deciden nada de esto.
+// sección 3). En iOS usa Liquid Glass nativo salvo con "Reducir transparencia"
+// o si el usuario eligió la variante opcional "editorial"; en Android y en el
+// resto, una superficie opaca con el mismo borde y sombra.
 export default function Superficie({ tono = "normal", elevada = false, style, ...props }: Props) {
   const c = useColores();
   const s = useSombras();
+  const { variante } = useAspecto();
   const oscuro = useColorScheme() === "dark";
   const reducirTransparencia = useReducirTransparencia();
 
@@ -35,7 +37,7 @@ export default function Superficie({ tono = "normal", elevada = false, style, ..
     { borderColor: c.vidrioBorde, boxShadow: elevada ? s.elevada : s.suave },
   ];
 
-  if (hayVidrioNativo && !reducirTransparencia && tono !== "solido") {
+  if (variante === "vidrio" && hayVidrioNativo && !reducirTransparencia && tono !== "solido") {
     return (
       <GlassView
         glassEffectStyle="regular"

@@ -5,4 +5,6 @@ export const CLAVES = {
   token: "sesion.token",
   // el Usuario en JSON, para entrar sin conexión con el nombre a la vista
   usuario: "sesion.usuario",
+  // variante visual elegida (vidrio por defecto, editorial opcional — F16)
+  aspecto: "pref.aspecto",
 } as const;

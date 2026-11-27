@@ -1,17 +1,37 @@
 import { useColorScheme } from "react-native";
-import { colores, fondoAmbiental, sombras, type Colores, type Sombras } from "../constantes/tema";
+import {
+  colores,
+  coloresEditorial,
+  fondoAmbiental,
+  fondoAmbientalEditorial,
+  sombras,
+  sombrasEditorial,
+  type Colores,
+  type Sombras,
+} from "../constantes/tema";
+import { useAspecto } from "./useAspecto";
 
-// Colores del tema según el modo del sistema (claro u oscuro).
+// Colores del tema según el modo del sistema (claro u oscuro) y la variante
+// visual elegida (Liquid Glass "vidrio" por defecto, "editorial" opcional).
 export function useColores(): Colores {
-  return useColorScheme() === "dark" ? colores.oscuro : colores.claro;
+  const oscuro = useColorScheme() === "dark";
+  const { variante } = useAspecto();
+  const paleta = variante === "editorial" ? coloresEditorial : colores;
+  return oscuro ? paleta.oscuro : paleta.claro;
 }
 
-// Sombras (boxShadow) del modo actual.
+// Sombras (boxShadow) del modo y variante visual actuales.
 export function useSombras(): Sombras {
-  return useColorScheme() === "dark" ? sombras.oscuro : sombras.claro;
+  const oscuro = useColorScheme() === "dark";
+  const { variante } = useAspecto();
+  const paleta = variante === "editorial" ? sombrasEditorial : sombras;
+  return oscuro ? paleta.oscuro : paleta.claro;
 }
 
-// Degradado del fondo ambiental del modo actual.
+// Degradado del fondo ambiental del modo y variante visual actuales.
 export function useFondoAmbiental(): string {
-  return useColorScheme() === "dark" ? fondoAmbiental.oscuro : fondoAmbiental.claro;
+  const oscuro = useColorScheme() === "dark";
+  const { variante } = useAspecto();
+  const fondo = variante === "editorial" ? fondoAmbientalEditorial : fondoAmbiental;
+  return oscuro ? fondo.oscuro : fondo.claro;
 }
