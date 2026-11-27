@@ -1,8 +1,8 @@
 import { router } from "expo-router";
-import { BookOpen } from "lucide-react-native";
+import { Award, BookOpen, Building2, CircleCheck } from "lucide-react-native";
 import { Pressable, StyleSheet, View } from "react-native";
 import { espacio, fuentes } from "../constantes/tema";
-import type { ResumenCurso } from "../tipos/contrato";
+import { NOMBRE_CATEGORIA, NOMBRE_NIVEL, type ResumenCurso } from "../tipos/contrato";
 import { textoCantidadLecciones } from "../utilidades/cursos";
 import { textoAvance } from "../utilidades/progreso";
 import AvanceCurso from "./AvanceCurso";
@@ -31,7 +31,13 @@ export default function TarjetaCurso({ curso, avance }: Props) {
         textoAvance(avance.completadas, avance.total),
         ...(avance.total > 0 && avance.completadas >= avance.total ? ["Curso terminado"] : []),
       ].join(", ")
-    : curso.titulo;
+    : [
+        curso.titulo,
+        NOMBRE_CATEGORIA[curso.categoria],
+        NOMBRE_NIVEL[curso.nivel],
+        ...(curso.organizacion ? [curso.organizacion.nombre] : []),
+        ...(curso.completado ? ["Completado"] : []),
+      ].join(", ");
 
   return (
     <Pressable
@@ -60,14 +66,23 @@ export default function TarjetaCurso({ curso, avance }: Props) {
             </View>
           ) : (
             <>
-              <Texto variante="cuerpoChico" color="textoSuave" numberOfLines={3}>
+              <Texto variante="cuerpoChico" color="textoSuave" numberOfLines={2}>
                 {curso.descripcion}
               </Texto>
-              <View style={styles.pie}>
+              <View style={styles.etiquetas}>
+                {curso.organizacion && (
+                  <Insignia tono="primario" icono={Building2} texto={curso.organizacion.nombre} />
+                )}
                 <Insignia
                   icono={BookOpen}
                   texto={textoCantidadLecciones(curso.cantidadLecciones)}
                 />
+                <Insignia texto={NOMBRE_CATEGORIA[curso.categoria]} />
+                <Insignia texto={NOMBRE_NIVEL[curso.nivel]} />
+                {curso.daInsignia && <Insignia tono="acento" icono={Award} texto="Insignia" />}
+                {curso.completado && (
+                  <Insignia tono="brote" icono={CircleCheck} texto="Completado" />
+                )}
               </View>
             </>
           )}
@@ -96,5 +111,11 @@ const styles = StyleSheet.create({
   },
   pie: {
     paddingTop: espacio[3],
+  },
+  etiquetas: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: espacio[2],
+    paddingTop: espacio[2],
   },
 });

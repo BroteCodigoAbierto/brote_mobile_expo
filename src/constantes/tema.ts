@@ -122,6 +122,62 @@ export const sombras = {
 
 export type Sombras = Record<keyof (typeof sombras)["claro"], string>;
 
+// Variante visual opcional "Editorial" (brote_specs/docs/diseno.md, sección 9):
+// superficies sólidas de mayor contraste y menor ornamento; Liquid Glass
+// (vidrio) sigue siendo el diseño por defecto.
+export const coloresEditorial: Record<"claro" | "oscuro", Colores> = {
+  claro: {
+    ...colores.claro,
+    primario: "#4338CA",
+    primarioHover: "#3730A3",
+    primarioSuave: "#EEF2FF",
+    texto: "#14141C",
+    textoSuave: "#4A4A5A",
+    textoTenue: "#737384",
+    borde: "#E5E3DD",
+    bordeFuerte: "#CFCBC2",
+    fondo: "#FAF9F7",
+    vidrio: "#FFFFFF",
+    vidrioSuave: "#F3F2EE",
+    vidrioOpaco: "#FFFFFF",
+    vidrioBorde: "#E5E3DD",
+  },
+  oscuro: {
+    ...colores.oscuro,
+    primario: "#818CF8",
+    primarioHover: "#A5B4FC",
+    primarioSuave: "rgba(129, 140, 248, 0.16)",
+    texto: "#F4F4F6",
+    textoSuave: "#B2B4C2",
+    textoTenue: "#7C7E8E",
+    borde: "rgba(255, 255, 255, 0.12)",
+    bordeFuerte: "rgba(255, 255, 255, 0.22)",
+    fondo: "#121218",
+    vidrio: "#1A1B24",
+    vidrioSuave: "#222430",
+    vidrioOpaco: "#1A1B24",
+    vidrioBorde: "rgba(255, 255, 255, 0.12)",
+  },
+};
+
+export const fondoAmbientalEditorial = {
+  claro: "linear-gradient(180deg, #FAF9F7, #F5F3EE)",
+  oscuro: "linear-gradient(180deg, #121218, #0F1016)",
+} as const;
+
+export const sombrasEditorial: Record<"claro" | "oscuro", Sombras> = {
+  claro: {
+    suave: "0px 1px 2px rgba(20, 20, 28, 0.05)",
+    elevada: "0px 4px 14px rgba(20, 20, 28, 0.08)",
+    boton: "0px 2px 6px rgba(67, 56, 202, 0.22)",
+  },
+  oscuro: {
+    suave: "0px 1px 2px rgba(0, 0, 0, 0.3)",
+    elevada: "0px 6px 18px rgba(0, 0, 0, 0.45)",
+    boton: "0px 2px 8px rgba(0, 0, 0, 0.35)",
+  },
+};
+
 // Portadas generadas de los cursos: las mismas en claro y oscuro, todas con
 // contraste ≥ 4.5:1 con la letra blanca. Mismos valores y orden que
 // --color-portada-1 a -8 de la web: un curso tiene el mismo color en las dos.

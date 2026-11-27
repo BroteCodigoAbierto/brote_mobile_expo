@@ -2,10 +2,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
   ArrowRight,
+  Award,
   BookOpen,
+  Building2,
   ChevronRight,
   CircleCheck,
   CircleSlash,
+  GitFork,
   NotebookPen,
 } from "lucide-react-native";
 import { useCallback } from "react";
@@ -27,7 +30,13 @@ import { useColores } from "../../hooks/useColores";
 import { usePeticion } from "../../hooks/usePeticion";
 import { useRecargarAlVolver } from "../../hooks/useRecargarAlVolver";
 import { esNoDisponible, leerErrorDeCarga, traerCurso } from "../../servicios/cursos";
-import { MENSAJES_CATALOGO, NOMBRE_IDIOMA, type DetalleCurso as Curso } from "../../tipos/contrato";
+import {
+  MENSAJES_CATALOGO,
+  NOMBRE_CATEGORIA,
+  NOMBRE_IDIOMA,
+  NOMBRE_NIVEL,
+  type DetalleCurso as Curso,
+} from "../../tipos/contrato";
 import { textoCantidadLecciones } from "../../utilidades/cursos";
 import { avanceCurso, textoAciertos, textoBotonSiguiente } from "../../utilidades/progreso";
 
@@ -35,10 +44,28 @@ function abrirLeccion(idCurso: string, idLeccion: string) {
   router.push({ pathname: "/leccion/[idCurso]/[idLeccion]", params: { idCurso, idLeccion } });
 }
 
-// Detalle de un curso publicado (spec F02): sus datos, el avance del alumno
-// (F04) y la lista de lecciones, que se abren para cursarlas (F03). Queda
-// montado debajo de la lección, así que al volver se recarga en silencio para
-// mostrar el avance nuevo (research de F04, punto 8).
+type BloqueModulo = {
+  titulo: string | null;
+  lecciones: Curso["lecciones"];
+};
+
+function agruparPorModulo(lecciones: Curso["lecciones"]): BloqueModulo[] {
+  const tieneModulos = lecciones.some((l) => Boolean(l.modulo?.trim()));
+  if (!tieneModulos) return [{ titulo: null, lecciones }];
+
+  const bloques: BloqueModulo[] = [];
+  for (const leccion of lecciones) {
+    const titulo = leccion.modulo?.trim() || "General";
+    const ultimo = bloques[bloques.length - 1];
+    if (ultimo && ultimo.titulo === titulo) ultimo.lecciones.push(leccion);
+    else bloques.push({ titulo, lecciones: [leccion] });
+  }
+  return bloques;
+}
+
+// Detalle de un curso publicado (spec F02 + F16): metadatos completos,
+// atribución de fork, organización opcional, avance del alumno (F04) y temario
+// agrupado por módulos cuando el autor los definió.
 export default function DetalleCurso() {
   const c = useColores();
   const { idCurso } = useLocalSearchParams<{ idCurso: string }>();
@@ -69,9 +96,10 @@ export default function DetalleCurso() {
     }
 
     const { curso } = datos;
+    const bloques = agruparPorModulo(curso.lecciones);
+
     return (
       <>
-        {/* una recarga (al volver o al deslizar) que falló: los datos se quedan */}
         {error ? (
           <View style={styles.errorRecarga}>
             <Aviso texto={leerErrorDeCarga(error)} />
@@ -100,15 +128,30 @@ export default function DetalleCurso() {
             <Texto variante="cuerpoChico" color="primario" style={styles.autor}>
               Por {curso.autor.nombre}
             </Texto>
-            {/* F14: el de la voz de escuchar y repetir */}
+            {curso.cursoOrigen && (
+              <View style={styles.origen}>
+                <GitFork size={14} color={c.textoSuave} strokeWidth={2.25} />
+                <Texto variante="nota" color="textoSuave">
+                  Adaptado de «{curso.cursoOrigen.titulo}» ({curso.cursoOrigen.nombreAutor})
+                </Texto>
+              </View>
+            )}
             <Texto variante="nota" color="textoSuave">
               Idioma: {NOMBRE_IDIOMA[curso.idioma]}
             </Texto>
-            <Insignia
-              tono="primario"
-              icono={BookOpen}
-              texto={textoCantidadLecciones(curso.cantidadLecciones)}
-            />
+            <View style={styles.etiquetas}>
+              {curso.organizacion && (
+                <Insignia tono="primario" icono={Building2} texto={curso.organizacion.nombre} />
+              )}
+              <Insignia
+                tono="primario"
+                icono={BookOpen}
+                texto={textoCantidadLecciones(curso.cantidadLecciones)}
+              />
+              <Insignia texto={NOMBRE_CATEGORIA[curso.categoria]} />
+              <Insignia texto={NOMBRE_NIVEL[curso.nivel]} />
+              {curso.daInsignia && <Insignia tono="acento" icono={Award} texto="Da insignia" />}
+            </View>
           </View>
         </Superficie>
 
@@ -118,21 +161,32 @@ export default function DetalleCurso() {
 
         <View style={styles.lecciones}>
           <Texto variante="seccion" color="textoSuave" accessibilityRole="header">
-            Lecciones
+            Temario
           </Texto>
           {curso.lecciones.length === 0 ? (
             <EstadoVacio icono={NotebookPen} titulo="Este curso todavía no tiene lecciones." />
           ) : (
-            <Superficie style={styles.lista}>
-              {curso.lecciones.map((leccion, indice) => (
-                <FilaLeccion
-                  key={leccion.id}
-                  leccion={leccion}
-                  primera={indice === 0}
-                  alAbrir={() => abrirLeccion(curso.id, leccion.id)}
-                />
+            <View style={styles.modulos}>
+              {bloques.map((bloque, idxBloque) => (
+                <View key={`${bloque.titulo ?? "unico"}-${idxBloque}`} style={styles.bloqueModulo}>
+                  {bloque.titulo && (
+                    <Texto variante="etiqueta" color="textoSuave" style={styles.tituloModulo}>
+                      {bloque.titulo}
+                    </Texto>
+                  )}
+                  <Superficie style={styles.lista}>
+                    {bloque.lecciones.map((leccion, indice) => (
+                      <FilaLeccion
+                        key={leccion.id}
+                        leccion={leccion}
+                        primera={indice === 0}
+                        alAbrir={() => abrirLeccion(curso.id, leccion.id)}
+                      />
+                    ))}
+                  </Superficie>
+                </View>
               ))}
-            </Superficie>
+            </View>
           )}
         </View>
       </>
@@ -229,8 +283,6 @@ type PropsAvance = {
   curso: Curso;
 };
 
-// Cuánto lleva y por dónde seguir (docs/diseno.md, sección 5, "Detalle del
-// curso con progreso"): el botón abre la primera lección sin completar.
 function Avance({ curso }: PropsAvance) {
   const { completadas, total, siguiente } = avanceCurso(curso.lecciones);
 
@@ -269,7 +321,18 @@ const styles = StyleSheet.create({
     borderRadius: radio.enorme,
   },
   datos: {
-    gap: espacio[4],
+    gap: espacio[3],
+  },
+  origen: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espacio[2],
+  },
+  etiquetas: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: espacio[2],
+    paddingTop: espacio[2],
   },
   errorRecarga: {
     gap: espacio[4],
@@ -286,6 +349,15 @@ const styles = StyleSheet.create({
   },
   lecciones: {
     gap: espacio[4],
+  },
+  modulos: {
+    gap: espacio[5],
+  },
+  bloqueModulo: {
+    gap: espacio[3],
+  },
+  tituloModulo: {
+    paddingHorizontal: espacio[2],
   },
   lista: {
     padding: espacio[3],

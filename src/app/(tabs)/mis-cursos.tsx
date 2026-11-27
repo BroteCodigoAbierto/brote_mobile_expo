@@ -1,36 +1,140 @@
 import { router } from "expo-router";
-import { BookMarked } from "lucide-react-native";
-import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
+import { BookMarked, ChevronRight, KeyRound, Users } from "lucide-react-native";
+import { useCallback, useState } from "react";
+import { FlatList, Pressable, RefreshControl, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Aviso from "../../componentes/Aviso";
 import Boton from "../../componentes/Boton";
+import CampoTexto from "../../componentes/CampoTexto";
 import ErrorCarga from "../../componentes/ErrorCarga";
 import EstadoVacio from "../../componentes/EstadoVacio";
 import FondoAmbiental from "../../componentes/FondoAmbiental";
 import IndicadorCarga from "../../componentes/IndicadorCarga";
+import Insignia from "../../componentes/Insignia";
+import Superficie from "../../componentes/Superficie";
 import TarjetaCurso from "../../componentes/TarjetaCurso";
 import Texto from "../../componentes/Texto";
-import { espacio, MARGEN_PANTALLA } from "../../constantes/tema";
+import { espacio, MARGEN_PANTALLA, radio } from "../../constantes/tema";
 import { useColores } from "../../hooks/useColores";
 import { usePeticion } from "../../hooks/usePeticion";
 import { useRecargarAlVolver } from "../../hooks/useRecargarAlVolver";
 import { leerErrorDeCarga } from "../../servicios/cursos";
+import { traerMisGrupos, unirseAGrupo } from "../../servicios/grupos";
 import { traerCursosEmpezados } from "../../servicios/progreso";
 
-// "Mis cursos" (spec F04): los cursos que empezó el alumno, del avance más
-// reciente al más antiguo. La pestaña queda montada, así que al volver a ella
-// se recarga en silencio (research de F04, punto 8); deslizar hacia abajo
-// recarga con el indicador. La parte de cursos descargados llega con F10.
+// "Mis cursos" (spec F04 + F16): cursos empezados y sección de aulas/grupos
+// donde el alumno puede ver sus grupos o unirse con un código de aula.
 export default function MisCursos() {
   const c = useColores();
   const { datos, cargando, error, recargar, recargarEnSilencio } =
     usePeticion(traerCursosEmpezados);
-  useRecargarAlVolver(recargarEnSilencio);
+  const {
+    datos: datosGrupos,
+    recargar: recargarGrupos,
+    recargarEnSilencio: recargarGruposEnSilencio,
+  } = usePeticion(traerMisGrupos);
+
+  const [codigoGrupo, setCodigoGrupo] = useState("");
+  const [uniendo, setUniendo] = useState(false);
+  const [errorGrupo, setErrorGrupo] = useState<string | null>(null);
+  const [exitoGrupo, setExitoGrupo] = useState<string | null>(null);
+
+  const alVolver = useCallback(() => {
+    recargarEnSilencio();
+    recargarGruposEnSilencio();
+  }, [recargarEnSilencio, recargarGruposEnSilencio]);
+  useRecargarAlVolver(alVolver);
+
+  function recargarTodo() {
+    recargar();
+    recargarGrupos();
+  }
+
+  async function manejarUnirseGrupo() {
+    const limpio = codigoGrupo.trim();
+    if (!limpio) {
+      setErrorGrupo("Escribe el código de tu aula.");
+      return;
+    }
+    setUniendo(true);
+    setErrorGrupo(null);
+    setExitoGrupo(null);
+    try {
+      const { grupo } = await unirseAGrupo(limpio);
+      setCodigoGrupo("");
+      setExitoGrupo(`Te uniste a «${grupo.nombre}».`);
+      recargarGrupos();
+    } catch (err: unknown) {
+      setErrorGrupo(leerErrorDeCarga(err));
+    } finally {
+      setUniendo(false);
+    }
+  }
+
+  const grupos = datosGrupos?.grupos ?? [];
+
+  const seccionAulas = (
+    <View style={styles.seccionAulas}>
+      <Texto variante="seccion" color="textoSuave" accessibilityRole="header">
+        Mis aulas y grupos
+      </Texto>
+      {grupos.length > 0 && (
+        <View style={styles.listaAulas}>
+          {grupos.map((grupo) => (
+            <Pressable
+              key={grupo.id}
+              onPress={() =>
+                router.push({ pathname: "/curso/[idCurso]", params: { idCurso: grupo.idCurso } })
+              }
+              accessibilityRole="button"
+              style={({ pressed }) => pressed && styles.presionada}
+            >
+              <Superficie style={styles.tarjetaAula}>
+                <View style={styles.datosAula}>
+                  <Texto variante="titulo3">{grupo.nombre}</Texto>
+                  <Texto variante="cuerpoChico" color="textoSuave">
+                    {grupo.tituloCurso} · Docente: {grupo.nombreDocente}
+                  </Texto>
+                  <View style={styles.etiquetasAula}>
+                    <Insignia icono={Users} texto={`${grupo.cantidadAlumnos} participantes`} />
+                    {grupo.organizacion && (
+                      <Insignia tono="primario" texto={grupo.organizacion.nombre} />
+                    )}
+                  </View>
+                </View>
+                <ChevronRight size={20} color={c.textoTenue} strokeWidth={2.25} />
+              </Superficie>
+            </Pressable>
+          ))}
+        </View>
+      )}
+      <Superficie style={styles.formularioAula}>
+        <CampoTexto
+          etiqueta="Unirme a un aula con código"
+          valor={codigoGrupo}
+          alCambiar={setCodigoGrupo}
+          icono={KeyRound}
+          placeholder="Ej. AULA-4K9P"
+          autoCapitalize="characters"
+          alEnviar={() => void manejarUnirseGrupo()}
+          error={errorGrupo ?? undefined}
+        />
+        {exitoGrupo && <Aviso tono="exito" texto={exitoGrupo} />}
+        <Boton
+          titulo="Unirme al aula"
+          variante="secundario"
+          tamano="chico"
+          enviando={uniendo}
+          alPresionar={() => void manejarUnirseGrupo()}
+        />
+      </Superficie>
+    </View>
+  );
 
   let cuerpo;
   if (cargando && !datos) cuerpo = <IndicadorCarga />;
   else if (!datos) {
-    cuerpo = <ErrorCarga mensaje={leerErrorDeCarga(error)} alReintentar={recargar} />;
+    cuerpo = <ErrorCarga mensaje={leerErrorDeCarga(error)} alReintentar={recargarTodo} />;
   } else {
     cuerpo = (
       <FlatList
@@ -47,12 +151,11 @@ export default function MisCursos() {
         refreshControl={
           <RefreshControl
             refreshing={cargando}
-            onRefresh={recargar}
+            onRefresh={recargarTodo}
             tintColor={c.primario}
             colors={[c.primario]}
           />
         }
-        // dentro de la lista, para que deslizar hacia abajo siga funcionando
         ListEmptyComponent={
           <EstadoVacio
             icono={BookMarked}
@@ -67,6 +170,7 @@ export default function MisCursos() {
             }
           />
         }
+        ListFooterComponent={seccionAulas}
       />
     );
   }
@@ -77,7 +181,6 @@ export default function MisCursos() {
         <Texto variante="titulo1" accessibilityRole="header">
           Mis cursos
         </Texto>
-        {/* una recarga que falló con cursos en pantalla: se quedan */}
         {datos && error ? (
           <View style={styles.errorRecarga}>
             <Aviso texto={leerErrorDeCarga(error)} />
@@ -86,7 +189,7 @@ export default function MisCursos() {
                 titulo="Reintentar"
                 variante="secundario"
                 tamano="chico"
-                alPresionar={recargar}
+                alPresionar={recargarTodo}
               />
             </View>
           </View>
@@ -110,7 +213,6 @@ const styles = StyleSheet.create({
   reintentar: {
     alignItems: "center",
   },
-  // la lista llega hasta los bordes para que la sombra de las tarjetas no se corte
   lista: {
     marginHorizontal: -MARGEN_PANTALLA,
   },
@@ -120,5 +222,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: MARGEN_PANTALLA,
     paddingTop: espacio[2],
     paddingBottom: espacio[8],
+  },
+  seccionAulas: {
+    gap: espacio[4],
+    paddingTop: espacio[5],
+  },
+  listaAulas: {
+    gap: espacio[4],
+  },
+  tarjetaAula: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espacio[4],
+    padding: espacio[5],
+    borderRadius: radio.grande,
+  },
+  datosAula: {
+    flex: 1,
+    gap: espacio[2],
+  },
+  etiquetasAula: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: espacio[2],
+    paddingTop: espacio[1],
+  },
+  formularioAula: {
+    padding: espacio[5],
+    gap: espacio[4],
+  },
+  presionada: {
+    opacity: 0.9,
   },
 });
