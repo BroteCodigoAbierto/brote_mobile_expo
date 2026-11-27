@@ -71,11 +71,7 @@ export default function TarjetaCurso({ curso, avance }: Props) {
               </Texto>
               <View style={styles.etiquetas}>
                 {curso.organizacion && (
-                  <Insignia
-                    tono="primario"
-                    icono={Building2}
-                    texto={curso.organizacion.nombre}
-                  />
+                  <Insignia tono="primario" icono={Building2} texto={curso.organizacion.nombre} />
                 )}
                 <Insignia
                   icono={BookOpen}

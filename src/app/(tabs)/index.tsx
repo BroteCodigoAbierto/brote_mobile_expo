@@ -131,9 +131,9 @@ export default function Explorar() {
 
   const hayFiltros = Boolean(
     (filtros?.q ?? "") !== "" ||
-      filtros?.categoria ||
-      filtros?.nivel ||
-      filtros?.ocultarCompletados,
+    filtros?.categoria ||
+    filtros?.nivel ||
+    filtros?.ocultarCompletados,
   );
   const orgActiva = organizaciones.find((o) => o.slug === espacio) ?? null;
 

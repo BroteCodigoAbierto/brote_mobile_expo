@@ -129,7 +129,12 @@ export default function Cuenta() {
                   con mayor contraste.
                 </Texto>
               </View>
-              <View style={[styles.segmentado, { backgroundColor: c.vidrioSuave, borderColor: c.borde }]}>
+              <View
+                style={[
+                  styles.segmentado,
+                  { backgroundColor: c.vidrioSuave, borderColor: c.borde },
+                ]}
+              >
                 <Pressable
                   onPress={() => cambiarVariante("vidrio")}
                   accessibilityRole="button"
